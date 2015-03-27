@@ -27,3 +27,7 @@ bool parse_game_type();
 bool parse_ldp_type();
 bool parse_cmd_line(int argc, char **argv);
 void get_next_word(char *result, int result_size);
+
+#ifdef GCWZERO
+extern char gcw0_rom[];
+#endif

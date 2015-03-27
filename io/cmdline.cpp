@@ -90,6 +90,9 @@ int g_arg_index = 0;
 #define strcasecmp stricmp
 #endif
 
+#ifdef GCWZERO
+char gcw0_rom[500];
+#endif
 
 // parses the command line looking for the -homedir switch, returns true if found and valid (or not found)
 // (this must be done first because the the game and ldp classes may rely on the homedir being set to its proper place)
@@ -698,6 +701,14 @@ bool parse_cmd_line(int argc, char **argv)
 			if (cur_ldp)
 			{
 				cur_ldp->set_framefile(s);
+//hack hack hack
+//#ifdef GCWZERO
+//char gcw0_rom[500];
+//gcw0_rom = malloc((strlen(s)+1) * sizeof(char));
+//strcpy(gcw0_rom,s);
+//copy s into gcw0_rom and make it external
+//#endif
+//
 			}
 			else
 			{
@@ -705,6 +716,25 @@ bool parse_cmd_line(int argc, char **argv)
 				result = false;
 			}
 		}
+
+		else if (strcasecmp(s, "-gcwrom")==0)
+		{
+			get_next_word(s, sizeof(s));
+//hack hack hack
+#ifdef GCWZERO
+//gcw0_rom = malloc((strlen(s)+1));
+strcpy(gcw0_rom,s);
+//copy s into gcw0_rom and make it external
+#endif
+//
+//			}
+//			else
+//			{
+//				printline("You can only set a framefile using VLDP as your laserdisc player!");
+//				result = false;
+//			}
+		}
+
 		
 		// if they are defining an alternate soundtrack to be used by VLDP
 		else if (strcasecmp(s, "-altaudio")==0)

@@ -426,7 +426,7 @@ void pioneer::printmodel()
 	model[5] = 0; // terminate model
 	firmware[0] = id[5]; // set firmware
 	firmware[1] = id[6];
-	firmware[2] = 0;
+//gcw0	firmware[2] = 0;
 
 
 	// if we actually got a string

@@ -1,0 +1,32 @@
+Dragon's Lair Project
+Astron Belt ROM Locations - 2/14/01
+Andrew Hepburn - andrew@dragons-lair-project.com
+ 
+Daughter Board:
+
+IC1 - EPR-5473C
+IC2 - EPR-5474A
+IC3 - EPR-5284
+IC4 - EPR-5285
+IC5 - Empty
+IC6 - Empty
+IC7 - EPR-5286
+IC8 - EPR-5338
+IC9 - Empty
+IC10 - Empty
+IC11 - EPR-5280
+IC12 - EPR-5281
+IC13 - PR-5279  ** Bi-polar EPROM required **
+ 
+
+Main CPU Board:
+
+IC22 - PR-5277
+IC24 - PR-5278
+IC35 - PR-5276
+IC85 - PR-5275
+
+
+Video/Sync Board:
+
+IC14 - 5501

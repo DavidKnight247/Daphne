@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Daphne
+Comment=Laserdisc game emulator
+#Exec=daphne.bin astron vldp -framefile /media/sdcard/daphne/framefile/astron.txt
+#Exec=daphne.bin bega vldp -framefile /media/sdcard/daphne/bega/bega.txt
+Exec=start.sh %f
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=daphne
+Categories=emulators;
+MimeType=application/zip;
+#MimeType=application/zip;application/x-genesis-rom;application/x-megadrive-rom;application/x-sms-rom;application/x-cd-image;
+
+#X-OD-Manual=gcw0readme.txt

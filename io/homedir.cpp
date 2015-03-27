@@ -6,6 +6,10 @@
 #include "mpo_fileio.h"
 #include "conout.h"
 
+#ifdef GCWZERO //for romdir location
+#include "cmdline.h" 
+#endif
+
 #ifdef WIN32
 // for CreateDirectory
 #include <windows.h>
@@ -58,7 +62,11 @@ void homedir::set_homedir(const string &s)
 
 string homedir::get_romfile(const string &s)
 {
+#ifdef GCWZERO
+	return gcw0_rom;
+#else
 	return find_file("roms/" + s, true);
+#endif
 }
 
 string homedir::get_ramfile(const string &s)

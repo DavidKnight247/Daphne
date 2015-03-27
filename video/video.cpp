@@ -60,8 +60,15 @@ Uint8 *g_pVidTex = NULL;
 
 using namespace std;
 
+#ifdef GCWZERO
+unsigned int g_vid_width = 320, g_vid_height = 240;	// default for gp2x
+const Uint16 cg_normalwidths[] = { 320 };
+const Uint16 cg_normalheights[]= { 240 };
+#else
+
 #ifndef GP2X
 unsigned int g_vid_width = 640, g_vid_height = 480;	// default video width and video height
+
 #ifdef DEBUG
 const Uint16 cg_normalwidths[] = { 320, 640, 800, 1024, 1280, 1280, 1600 };
 const Uint16 cg_normalheights[]= { 240, 480, 600, 768, 960, 1024, 1200 };
@@ -69,11 +76,14 @@ const Uint16 cg_normalheights[]= { 240, 480, 600, 768, 960, 1024, 1200 };
 const Uint16 cg_normalwidths[] = { 640, 800, 1024, 1280, 1280, 1600 };
 const Uint16 cg_normalheights[]= { 480, 600, 768, 960, 1024, 1200 };
 #endif // DEBUG
+
 #else
 unsigned int g_vid_width = 320, g_vid_height = 240;	// default for gp2x
 const Uint16 cg_normalwidths[] = { 320 };
 const Uint16 cg_normalheights[]= { 240 };
-#endif
+#endif // GP2X
+
+#endif // GCWZERO
 
 // the dimensions that we draw (may differ from g_vid_width/height if aspect ratio is enforced)
 unsigned int g_draw_width = 640, g_draw_height = 480;
@@ -109,7 +119,11 @@ bool init_display()
 	bool result = false;	// whether video initialization is successful or not
 	bool abnormalscreensize = true; // assume abnormal
 	const SDL_VideoInfo *vidinfo = NULL;
+#ifdef GCWZERO
+	Uint8 suggested_bpp = 16;
+#else
 	Uint8 suggested_bpp = 0;
+#endif
 	Uint32 sdl_flags = 0;	// the default for this depends on whether we are using HW accelerated YUV overlays or not
 
 	char *hw_env = getenv("SDL_VIDEO_YUV_HWACCEL");
@@ -205,7 +219,11 @@ bool init_display()
 #ifndef GP2X
 		if (!g_bUseOpenGL)
 		{
+#ifdef GCWZERO
 			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
+#else
+			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
+#endif
 			SDL_WM_SetCaption("DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]", "daphne");
 		}
 		else

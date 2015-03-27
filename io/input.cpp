@@ -80,12 +80,14 @@ int g_key_defs[SWITCH_COUNT][2] =
 	{ SDLK_LEFT, SDLK_KP4 },	// left
 	{ SDLK_DOWN, SDLK_KP2 },	// down
 	{ SDLK_RIGHT,  SDLK_KP6 },	// right
-	{ SDLK_1,	0 }, // 1 player start
+//gcw	{ SDLK_1,	0 }, // 1 player start
+	{ SDLK_RETURN,	0 }, // 1 player start
 	{ SDLK_2,	0 }, // 2 player start
 	{ SDLK_SPACE, SDLK_LCTRL }, // action button 1
 	{ SDLK_LALT,	0 }, // action button 2
 	{ SDLK_LSHIFT,	0 }, // action button 3
-	{ SDLK_5, SDLK_c }, // coin chute left
+//	{ SDLK_5, SDLK_c }, // coin chute left
+	{ SDLK_TAB, SDLK_c }, // coin chute left
 	{ SDLK_6, 0 }, // coin chute right
 	{ SDLK_KP_DIVIDE, 0 }, // skill easy
 	{ SDLK_KP_MULTIPLY, 0 },	// skill medium

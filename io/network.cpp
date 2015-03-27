@@ -182,7 +182,11 @@ unsigned int get_cpu_mhz()
 	result = (unsigned int) mhz;
 #endif // NATIVE_CPU_X86
 #ifdef NATIVE_CPU_MIPS
+#ifdef GCWZERO
+	result = 1000;	// gcw0 default speed
+#else
 	result = 294;	// assume playstation 2 for now :)
+#endif
 #endif // NATIVE_CPU_MIPS
 #endif // LINUX
 
@@ -237,7 +241,11 @@ unsigned int get_sys_mem()
 #ifdef LINUX
 	FILE *F;
 	int iRes = 0;
+#ifdef GCWZERO
+	const char *s = "cat /proc/meminfo | grep MemTotal | awk '{print $2}'";
+#else
 	const char *s = "ls -l /proc/kcore | awk '{print $5}'";
+#endif
 	F = popen(s, "r");
 	if (F)
 	{
@@ -260,7 +268,11 @@ unsigned int get_sys_mem()
 	mem = memstat.dwTotalPhys;
 #endif
 
+#ifdef GCWZERO
+	result = (mem / (1024)) + 32;	// for rounding
+#else
 	result = (mem / (1024*1024)) + 32;	// for rounding
+#endif
 	mod = result % 64;
 	result -= mod;
 
@@ -285,7 +297,8 @@ char *get_video_description()
 	}
 #endif	// NATIVE_CPU_X86
 #ifdef NATIVE_CPU_MIPS
-	strcpy(result, "Playstation2");	// assume PS2 for now hehe
+//gcw0	strcpy(result, "Playstation2");	// assume PS2 for now hehe
+	strcpy(result, "Framebuffer");	//  ???
 #endif // MIPS
 #endif
 
@@ -399,7 +412,8 @@ char *get_cpu_name()
 #endif // NATIVE_CPU_X86
 
 #ifdef NATIVE_CPU_MIPS
-	strcpy(result, "MIPS R5900 V2.0");	// assume playstation 2 for now
+//	strcpy(result, "MIPS R5900 V2.0");	// assume playstation 2 for now
+	strcpy(result, "MIPS Jz4770");	// gcw0 cpu
 #endif	// NATIVE_CPU_MIPS
 
 #ifdef NATIVE_CPU_SPARC
