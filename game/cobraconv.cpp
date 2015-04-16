@@ -544,7 +544,8 @@ void cobraconv::input_disable(Uint8 move)
 	switch (move)
 	{
 	case SWITCH_UP:
-		banks[0] |= 0x01; 
+//		banks[0] |= 0x01; 
+		banks[0] |= 0x02; 
 		break;
 	case SWITCH_LEFT:
 		banks[0] |= 0x08; 
@@ -553,7 +554,8 @@ void cobraconv::input_disable(Uint8 move)
 		banks[0] |= 0x04; 
 		break;
 	case SWITCH_DOWN:
-		banks[0] |= 0x02; 
+		banks[0] |= 0x01; 
+//		banks[0] |= 0x02; 
 		break;
 	case SWITCH_START1: 
 		banks[0] |= 0x40; 
