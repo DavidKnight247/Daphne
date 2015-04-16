@@ -97,7 +97,8 @@ int g_key_defs[SWITCH_COUNT][2] =
 	{ SDLK_F3, 0 },	// reset cpu
 	{ SDLK_F12, SDLK_F11 },	// take screenshot
 	{ SDLK_ESCAPE, SDLK_q },	// Quit DAPHNE
-	{ SDLK_p, 0 },	// pause game
+//	{ SDLK_p, 0 },	// pause game
+	{ SDLK_BACKSPACE, 0 },	// pause game
 	{ SDLK_BACKQUOTE, 0 },	// toggle console
 	{ SDLK_t, 0 },	// Tilt/Slam switch
 };
