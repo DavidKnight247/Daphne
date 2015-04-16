@@ -701,14 +701,6 @@ bool parse_cmd_line(int argc, char **argv)
 			if (cur_ldp)
 			{
 				cur_ldp->set_framefile(s);
-//hack hack hack
-//#ifdef GCWZERO
-//char gcw0_rom[500];
-//gcw0_rom = malloc((strlen(s)+1) * sizeof(char));
-//strcpy(gcw0_rom,s);
-//copy s into gcw0_rom and make it external
-//#endif
-//
 			}
 			else
 			{
@@ -720,19 +712,10 @@ bool parse_cmd_line(int argc, char **argv)
 		else if (strcasecmp(s, "-gcwrom")==0)
 		{
 			get_next_word(s, sizeof(s));
-//hack hack hack
 #ifdef GCWZERO
-//gcw0_rom = malloc((strlen(s)+1));
-strcpy(gcw0_rom,s);
-//copy s into gcw0_rom and make it external
+			strcpy(gcw0_rom,s);
+			//copy s into gcw0_rom and make it external
 #endif
-//
-//			}
-//			else
-//			{
-//				printline("You can only set a framefile using VLDP as your laserdisc player!");
-//				result = false;
-//			}
 		}
 
 		
