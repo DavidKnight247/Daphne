@@ -4,13 +4,15 @@
 export CXX=mipsel-linux-g++
 export CC=mipsel-linux-gcc
 
+SDLPATH =/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/
+
 # debugging version
 #DFLAGS = -g -DCPU_DEBUG
 
 # optimized version
 # NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp
 # If you want to -DGCC_X86_ASM for extra speed, you have to use g++ 3.0 or earlier
-DFLAGS = -O3 -fomit-frame-pointer \
+DFLAGS = -O3 -march=mips32r2 -fomit-frame-pointer \
 	-fexpensive-optimizations -funroll-loops -ffast-math
 
 # this is to be exported for MMX assembly optimization
@@ -20,8 +22,8 @@ export USE_MMX = 0
 export STATIC_VLDP = 1
 
 # platform-specific compile flags
-PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DLINUX -DGCWZERO -DNATIVE_CPU_MIPS \
+PFLAGS = ${DFLAGS} `${SDLPATH}sdl-config --cflags` -DUNIX -DLINUX -DGCWZERO -DNATIVE_CPU_MIPS \
 	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 
 # platform-specific lib flags
-LIBS = `/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile #-lGLEW
+LIBS = `${SDLPATH}sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile #-lGLEW

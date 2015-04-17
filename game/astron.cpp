@@ -930,17 +930,26 @@ void astron::input_enable(Uint8 move)
 {
 	switch (move)
 	{
+#ifdef GCWZERO
+	case SWITCH_UP:
+		banks[1] &= ~0x04; 
+		break;
+	case SWITCH_DOWN:
+		banks[1] &= ~0x08; 
+		break;
+#else
 	case SWITCH_UP:
 		banks[1] &= ~0x08; 
 		break;
+	case SWITCH_DOWN:
+		banks[1] &= ~0x04; 
+		break;
+#endif
 	case SWITCH_LEFT:
 		banks[1] &= ~0x02;
 		break;
 	case SWITCH_RIGHT:
 		banks[1] &= ~0x01;
-		break;
-	case SWITCH_DOWN:
-		banks[1] &= ~0x04; 
 		break;
 	case SWITCH_START1: // '1' on keyboard
 		banks[0] &= ~0x10; 
@@ -971,17 +980,26 @@ void astron::input_disable(Uint8 move)
 {
 	switch (move)
 	{
+#ifdef GCWZERO
+	case SWITCH_UP:
+		banks[1] |= 0x04; 
+		break;
+	case SWITCH_DOWN:
+		banks[1] |= 0x08; 
+		break;
+#else
 	case SWITCH_UP:
 		banks[1] |= 0x08; 
 		break;
+	case SWITCH_DOWN:
+		banks[1] |= 0x04; 
+		break;
+#endif
 	case SWITCH_LEFT:
 		banks[1] |= 0x02;
 		break;
 	case SWITCH_RIGHT:
 		banks[1] |= 0x01;
-		break;
-	case SWITCH_DOWN:
-		banks[1] |= 0x04; 
 		break;
 	case SWITCH_START1: // '1' on keyboard
 		banks[0] |= 0x10; 

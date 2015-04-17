@@ -934,12 +934,21 @@ void mach3::input_disable(Uint8 move)
 {
 	switch(move)
 	{
+#ifdef GCWZERO
+	case SWITCH_UP:
+		m_gamecontrols &= (unsigned char) ~0x02;	// clear bit 0
+		break;
+	case SWITCH_DOWN:
+		m_gamecontrols &= (unsigned char) ~0x01;	// clear bit 1
+		break;
+#else
 	case SWITCH_UP:
 		m_gamecontrols &= (unsigned char) ~0x01;	// clear bit 0
 		break;
 	case SWITCH_DOWN:
 		m_gamecontrols &= (unsigned char) ~0x02;	// clear bit 1
 		break;
+#endif
 	case SWITCH_LEFT:
 		m_gamecontrols &= (unsigned char) ~0x04;	// clear bit 2
 		break;
@@ -997,12 +1006,21 @@ void mach3::input_enable(Uint8 move)
 
 	switch(move)
 	{
+#ifdef GCWZERO
+	case SWITCH_UP:
+		m_gamecontrols |= 0x02;	// set bit 0
+		break;
+	case SWITCH_DOWN:
+		m_gamecontrols |= 0x01;	// set bit 1
+		break;
+#else
 	case SWITCH_UP:
 		m_gamecontrols |= 0x01;	// set bit 0
 		break;
 	case SWITCH_DOWN:
 		m_gamecontrols |= 0x02;	// set bit 1
 		break;
+#endif
 	case SWITCH_LEFT:
 		m_gamecontrols |= 0x04;	// set bit 2
 		break;
