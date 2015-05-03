@@ -7,7 +7,7 @@ export CC=mipsel-linux-gcc
 SDLPATH =/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/
 
 # debugging version
-#DFLAGS = -g -DCPU_DEBUG
+#DFLAGS = -g #-DCPU_DEBUG
 
 # optimized version
 # NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp
@@ -20,6 +20,7 @@ export USE_MMX = 0
 
 # uncomment this to link VLDP statically instead of dynamically
 export STATIC_VLDP = 1
+#export STATIC_VLDP_GP2X = 1
 
 # platform-specific compile flags
 PFLAGS = ${DFLAGS} `${SDLPATH}sdl-config --cflags` -DUNIX -DLINUX -DGCWZERO -DNATIVE_CPU_MIPS \

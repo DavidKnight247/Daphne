@@ -6,4 +6,4 @@ cd ..;
 cp Makefile.vars.gcw0 Makefile.vars;
 make;
 mv ../daphne.bin gcwopk;
-mksquashfs gcwopk/ Daphne.DEV.opk -all-root -noappend -no-exports -no-xattrs;
+mksquashfs gcwopk/ Daphne.opk -all-root -noappend -no-exports -no-xattrs;

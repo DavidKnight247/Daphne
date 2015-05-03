@@ -4,15 +4,16 @@
 # TODO: Add dependencies
 
 CC = mipsel-linux-gcc
-#DFLAGS = -pg
+#DFLAGS = -g -fPIC
 #DFLAGS = -g -DVLDP_DEBUG
 
 # Benchmarking version
 #DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
 
 # Standard version
-DFLAGS = -O3 -fomit-frame-pointer -funroll-loops -fPIC -ffast-math
+DFLAGS = -O3 -march=mips32r2 -fomit-frame-pointer -funroll-loops -fPIC -ffast-math -DGCWZERO
 
+#DFLAGS += -fPIC
 CFLAGS = ${DFLAGS} `/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl-config --cflags` -I./include
 LIBS = `/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/sdl-config --libs`
 

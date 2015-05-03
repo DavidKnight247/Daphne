@@ -60,10 +60,10 @@ Uint8 *g_pVidTex = NULL;
 
 using namespace std;
 
-#ifdef GCWZERO
-unsigned int g_vid_width = 320, g_vid_height = 240;	// default for gp2x
-const Uint16 cg_normalwidths[] = { 320 };
-const Uint16 cg_normalheights[]= { 240 };
+#ifdef GCWZERO //this must match the 
+unsigned int g_vid_width = 320, g_vid_height = 240;	// default
+const Uint16 cg_normalwidths[] = { 320, 640 };
+const Uint16 cg_normalheights[]= { 240, 480 };
 #else
 
 #ifndef GP2X
@@ -93,13 +93,12 @@ SDL_Surface *g_other_bmps[B_EMPTY] = { 0 };
 SDL_Surface *g_screen = NULL;	// our primary display
 SDL_Surface *g_screen_blitter = NULL;	// the surface we blit to (we don't blit directly to g_screen because opengl doesn't like that)
 bool g_console_initialized = false;	// 1 once console is initialized
-bool g_fullscreen = false;	// whether we should initialize video in fullscreen mode or not
+bool g_fullscreen = true;	// whether we should initialize video in fullscreen mode or not
 int sboverlay_characterset = 1;
 
 // whether we will try to force a 4:3 aspect ratio regardless of window size
 // (this is probably a good idea as a default option)
 bool g_bForceAspectRatio = true;
-
 bool g_bUseOpenGL = false;	// whether user has requested we use OpenGL
 
 // the # of degrees to rotate counter-clockwise in opengl mode
@@ -131,7 +130,11 @@ bool init_display()
 	// if HW acceleration has been disabled, we need to use a SW surface due to some oddities with crashing and fullscreen
 	if (hw_env && (hw_env[0] == '0'))
 	{
+#ifdef GCWZERO
+		sdl_flags = SDL_SWSURFACE|SDL_ANYFORMAT;
+#else
 		sdl_flags = SDL_SWSURFACE;
+#endif
 	}
 
 	// else if HW acceleration hasn't been explicitely disabled ...
@@ -220,10 +223,13 @@ bool init_display()
 		if (!g_bUseOpenGL)
 		{
 #ifdef GCWZERO
-			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
+			SDL_ShowCursor(SDL_DISABLE);	// always hide mouse for gcw0
+//			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
+//			g_screen = SDL_SetVideoMode(640, 480, 16, SDL_SWSURFACE | SDL_ANYFORMAT);
+			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, 16, SDL_SWSURFACE | SDL_ANYFORMAT);
 #else
 			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
-#endif
+#endif //GCWZERO
 			SDL_WM_SetCaption("DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]", "daphne");
 		}
 		else
@@ -232,7 +238,7 @@ bool init_display()
 			init_opengl();
 			glGenTextures(1, &g_texture_id);	// generate texture buffer for use in this file
 			g_pVidTex = MPO_MALLOC(GL_TEX_SIZE * GL_TEX_SIZE * 4);	// 32-bit bits per pixel, width and height the same
-#endif
+#endif //USE_OPENGL
 		}
 #else
 		SDL_ShowCursor(SDL_DISABLE);	// always hide mouse for gp2x
@@ -243,7 +249,11 @@ bool init_display()
 		g_screen_blitter = SDL_CreateRGBSurface(SDL_SWSURFACE,
                                         g_vid_width,
                                         g_vid_height,
+#ifdef GCWZERO
+										16,
+#else
 										32,
+#endif
 										0xff, 0xFF00, 0xFF0000, 0xFF000000);
 
 		if (g_screen && g_screen_blitter)
@@ -386,7 +396,20 @@ void vid_flip()
 	// if we're not using OpenGL, then just use the regular SDL Flip ...
 	if (!g_bUseOpenGL)
 	{
+#ifdef GCWZERO
+static int eo3;
+if(!eo3)
+{
+eo3=3;
 		SDL_Flip(g_screen);
+}
+else
+{
+eo3--;
+}
+#else
+		SDL_Flip(g_screen);
+#endif
 	}
 	else
 	{

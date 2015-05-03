@@ -128,7 +128,6 @@ ldp_vldp::ldp_vldp()
 	m_vertical_stretch = 0;
 
 	m_testing = false;	// don't run tests by default
-
 	m_bPreCache = m_bPreCacheForce = false;
 	m_mPreCachedFiles.clear();
 
@@ -422,6 +421,27 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
 
 	while (g_vldp_info->status == STAT_BUSY)
 	{
+#ifdef GCWZERO
+		// if we got a parse update, then show it ...
+static int eo3;
+if(!eo3)
+{
+eo3=3;
+		if (g_bGotParseUpdate)
+		{
+			// redraw screen blitter before we display it
+			update_parse_meter();
+			vid_blank();
+			vid_blit(get_screen_blitter(), 0, 0);
+			vid_flip();
+			g_bGotParseUpdate = false;
+		}
+}
+else
+eo3--;
+		SDL_check_input();	// so that windows events are handled
+		make_delay(1);	// be nice to CPU
+#else
 		// if we got a parse update, then show it ...
 		if (g_bGotParseUpdate)
 		{
@@ -435,6 +455,7 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
 
 		SDL_check_input();	// so that windows events are handled
 		make_delay(20);	// be nice to CPU
+#endif
 	}
 
 	// if opening succeeded
@@ -1089,7 +1110,6 @@ void ldp_vldp::run_tests(list<string> &lstrPassed, list<string> &lstrFailed)
 						{
 							test_helper(32);	// pause 32 ms (right before frame should change)
 							SDL_Delay(50);	// vldp thread blah blah ...
-
 							// current frame still should not have changed
 							if (g_vldp_info->current_frame == 0)
 							{
@@ -1416,7 +1436,11 @@ bool ldp_vldp::precache_all_video()
 	// if we were able to compute the file size ...
 	if (bResult)
 	{
+#ifdef GCWZERO
+		const unsigned int uFUDGE = 32;	// how many megs we assume the OS needs in addition to our application running
+#else
 		const unsigned int uFUDGE = 256;	// how many megs we assume the OS needs in addition to our application running
+#endif
 		unsigned int uReqMegs = (unsigned int) ((u64TotalBytes / 1048576) + uFUDGE);
 		unsigned int uMegs = get_sys_mem();
 
@@ -1721,26 +1745,24 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 	if (SDL_LockYUVOverlay(g_hw_overlay) == 0)
 	{
 		SDL_Surface *gamevid = g_game->get_finished_video_overlay();	// This could change at any time (double buffering, for example)
-		// so we are forced to query it every time we run this function.  If someone has a better idea, let me know
-		
-		// sanity check.  Make sure the game video is the proper width.
+#ifdef GCWZERO
+		if ((gamevid->w) == g_hw_overlay->w)
+#else
 		if ((gamevid->w << 1) == g_hw_overlay->w)
+#endif
 		{
 			// adjust for vertical offset
 			// We use _half_ of the requested vertical offset because the mpeg video is twice
 			// the size of the overlay
 			Uint8 *gamevid_pixels = (Uint8 *) gamevid->pixels - (gamevid->w * (g_vertical_offset - g_vertical_stretch));
 			
-#ifdef DEBUG
-			// make sure that the g_vertical_offset isn't out of bounds
-			Uint8 *last_valid_byte = ((Uint8 *) gamevid->pixels) + (gamevid->w * gamevid->h) - 1;
-			assert(gamevid_pixels < last_valid_byte);
-#endif
-			
 			unsigned int row = 0;
 			unsigned int col = 0;
 			Uint32 w_double = g_hw_overlay->w << 1;	// twice the overlay width, to avoid calculating this more than once
+			Uint32 w_double2 = g_hw_overlay->w << 2;	// twice the overlay width, to avoid calculating this more than once
+			Uint32 w_half = g_hw_overlay->w >> 1;	// half the overlay width, to avoid calculating this more than once
 			Uint32 h_half = g_hw_overlay->h >> 1;	// half of the overlay height, to avoid calculating this more than once
+			Uint32 h_normal = g_hw_overlay->h;	// the overlay height, to avoid calculating this more than once
 			Uint8 *dst_ptr;
 			
 			// this could be global, any benefit?
@@ -1755,15 +1777,15 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 			Uint8 *V = (Uint8 *) src->V;
 
 			// if letterbox removal is active, shift video down to compensate
-			for (unsigned int skip = 0; skip < g_vertical_stretch; skip += 2)
+ 			for (unsigned int skip = 0; skip < g_vertical_stretch; skip += 2)
 			{
 				Y += (g_hw_overlay->w * 4);
 				Y2 += (g_hw_overlay->w * 4);
 				U += g_hw_overlay->w;
 				V += g_hw_overlay->w;
 			}
-			
 			// do 2 rows at a time
+
 			for (row = 0; row < h_half; row++)
 			{
 				// calculate this here to avoid calculating too often
@@ -1774,101 +1796,73 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 				// do 4 bytes at a time, for twice the width of the overlay since we're using YUY2
 				for (col = 0; col < w_double; col += 4)
 				{
-					// if we can safely draw from the video overlay
-					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
-					
-					// If we are out of range, OR if the current color is transparent,
-					//  then draw the mpeg video pixel instead of the video overlay
-					// (if palette is NULL, the compiler shouldn't try to dereference palette->transparent)
-					if ((palette == NULL) || palette->transparent)
-					{
+//draw the video first
 						unsigned int Y_chunk = *((Uint16 *) Y);
 						unsigned int Y2_chunk = *((Uint16 *) Y2);
+
 						unsigned int V_chunk = *V;
 						unsigned int U_chunk = *U;
-						
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-						//Little-Endian (Intel)
 						*((Uint32 *) (g_line_buf + col)) = (Y_chunk & 0xFF) | (U_chunk << 8) |
 							((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
 						*((Uint32 *) (g_line_buf2 + col)) = (Y2_chunk & 0xFF) | (U_chunk << 8) |
 							((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
-#else						
-						//Big-Endian (Mac)			
-						*((Uint32 *) (g_line_buf + col)) = ((Y_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-							((Y_chunk & 0xFF) << 8) | (V_chunk);
-						*((Uint32 *) (g_line_buf2 + col)) = ((Y2_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-							((Y2_chunk & 0xFF) << 8) | (V_chunk);												
-#endif
-					}
-					
-					// if we have an overlay pixel to be drawn
-					else
-					{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN							
-						//Little-Endian (Intel)
-						*((Uint32 *) (g_line_buf + col)) = 
-							*((Uint32 *) (g_line_buf2 + col)) = palette->y | (palette->u << 8)
-							| (palette->y << 16) | (palette->v << 24);						
-#else					
-						//Big-Endian (Mac)
-						*((Uint32 *) (g_line_buf + col)) = 
-							*((Uint32 *) (g_line_buf2 + col)) = (palette->y << 24) | (palette->u << 16)
-							| (palette->y << 8) | (palette->v);
-#endif
-						
-					}
 					Y += 2;
 					Y2 += 2;
 					U++;
 					V++;
+				}
+				static int eop;
+				if(eop) eop--;
+				else eop++;
+				for (col = 0; col < w_double; col += 2)
+				{
+					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
+					if ((palette == NULL) || palette->transparent)
+					{
+					}
+					else
+					{
+						if(!eop)
+						{
+							*((Uint32 *) (g_line_buf + col)) = 
+								 palette->y | (palette->u << 8);
+						}
+						else
+						{
+							*((Uint32 *) (g_line_buf + col)) = 
+								 palette->y | (palette->v << 8);
+						}
+					}
 					gamevid_pixels++;
 				}
-				
-				// if we're not doing scanlines
-				if (!(g_filter_type & FILTER_SCANLINES))
+				for (col = 0; col < w_double; col += 2)
 				{
-					// no filtering at all
-					if (!(g_filter_type & FILTER_BLEND))
+					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
+					if ((palette == NULL) || palette->transparent)
 					{
-						memcpy(dst_ptr, g_line_buf, (g_hw_overlay->w << 1));
-						memcpy(dst_ptr + channel0_pitch, g_line_buf2, (g_hw_overlay->w << 1));
 					}
 					else
 					{
-						g_blend_func();	// blend the two lines into g_line_buf3
-						// this won't affect video overlay because it is already doubled in size anyway
-						memcpy(dst_ptr, g_line_buf3, (g_hw_overlay->w << 1));
-						memcpy(dst_ptr + channel0_pitch, g_line_buf3, (g_hw_overlay->w << 1));
+						if(!eop)
+						{
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette->y | (palette->u << 8);
+						}
+						else
+						{
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette->y | (palette->v << 8);
+						}
 					}
+					gamevid_pixels++;
 				}
-				
-				// if we're doing scanlines
-				else
-				{
-					// do a black YUY2 line (the first line should be black to workaround nvidia bug)
-					for (int i = 0; i < (g_hw_overlay->w << 1); i+=4)
-					{
-						*((Uint32 *) (dst_ptr + i)) = YUY2_BLACK;	// this value is black in YUY2 mode
-					}
-					
-					if (g_filter_type & FILTER_BLEND)
-					{
-						g_blend_func();	// blend the two lines into g_line_buf3
-						// this won't affect video overlay because it is already doubled in size anyway
-						memcpy(dst_ptr + channel0_pitch, g_line_buf3, (g_hw_overlay->w << 1));
-					}
-					else
-					{
-						memcpy(dst_ptr + channel0_pitch, g_line_buf, (g_hw_overlay->w << 1));	// this could be g_line_buf2 also
-					}					
-				}
-				
+				memcpy(dst_ptr, g_line_buf, (g_hw_overlay->w << 1));
+				memcpy(dst_ptr + channel0_pitch, g_line_buf2, (g_hw_overlay->w << 1));
 				dst_ptr += (channel0_pitch << 1);	// we've done 2 rows, so skip a row
 				Y += g_hw_overlay->w;	// we've done 2 vertical Y pixels, so skip a row
 				Y2 += g_hw_overlay->w;
-			}	
-			
+			}
+
 			// if we've been instructed to take a screenshot, do so now that the overlay is in place
 			if (g_take_screenshot)
 			{
@@ -1893,7 +1887,7 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 					char s[81];
 					printline("WARNING : Your MPEG doesn't match your video overlay's resolution.");
 					printline("Video overlay will not work!");
-					sprintf(s, "Your MPEG's size is %d x %d, and needs to be %d x %d", g_hw_overlay->w, g_hw_overlay->h, (gamevid->w << 1), (gamevid->h << 1));
+					sprintf(s, "Your MPEG's size is %d x %d, and needs to be %d x %d", g_hw_overlay->w, g_hw_overlay->h, (gamevid->w), (gamevid->h));
 					printline(s);
 				}
 				// else, there is no problem at all, so don't alarm the user
@@ -2013,8 +2007,8 @@ void buf2overlay_YUY2(SDL_Overlay *dst, struct yuv_buf *src)
 			
 #endif
 			
-			Y += 2;
-			Y2 += 2;
+			Y += 2; //1st row
+			Y2 += 2; //second row
 			U++;
 			V++;
 		}
@@ -2193,19 +2187,28 @@ void report_mpeg_dimensions_callback(int width, int height)
 	// if an overlay exists, but its dimensions are wrong, we need to de-allocate it
 	if (g_hw_overlay && ((g_hw_overlay->w != width) || (g_hw_overlay->h != height)))
 	{
+#ifdef GCWZERO2
+#else
 		free_yuv_overlay();		
+#endif
 	}
 
 	// blitting is not allowed once we create the YUV overlay ...
 	g_ldp->set_blitting_allowed(false);
 
 	// if our overlay has been de-allocated, or if we never had one to begin with ... then allocate it now
+//#ifdef GCWZERO
+//#else
 	if (!g_hw_overlay)
+//#endif
 	{
 		// create overlay, taking into account any letterbox removal we're doing
 		// (*4 because our pixels are *2 the height of the graphics, AND we're doing it at the top and bottom)
+#ifdef GCWZERO
+		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 2), SDL_YUY2_OVERLAY, get_screen());
+#else
 		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 4), SDL_YUY2_OVERLAY, get_screen());
-		
+#endif
 		// safety check
 		if (!g_hw_overlay)
 		{
@@ -2226,7 +2229,11 @@ void report_mpeg_dimensions_callback(int width, int height)
 		
 		// we don't need to check whether these buffers have been allocated or not because this is checked for earlier
 		// when we check to see if g_hw_overlay has been allocated
+#ifdef GCWZERO
 		g_blank_yuv_buf.Y_size = width*height;
+#else
+		g_blank_yuv_buf.Y_size = width*height;
+#endif
 		g_blank_yuv_buf.Y = MPO_MALLOC(g_blank_yuv_buf.Y_size);
 		memset(g_blank_yuv_buf.Y, 0, g_blank_yuv_buf.Y_size);	// blank Y color
 		g_blank_yuv_buf.UV_size = g_blank_yuv_buf.Y_size >> 2;
@@ -2236,9 +2243,15 @@ void report_mpeg_dimensions_callback(int width, int height)
 		memset(g_blank_yuv_buf.V, 127, g_blank_yuv_buf.UV_size);	// blank V color
 		
 		// yuy2 needs twice as much space across for lines
+#ifdef GCWZERO
 		g_line_buf = MPO_MALLOC(width * 2);
 		g_line_buf2 = MPO_MALLOC(width * 2);
 		g_line_buf3 = MPO_MALLOC(width * 2);
+#else
+		g_line_buf = MPO_MALLOC(width * 2);
+		g_line_buf2 = MPO_MALLOC(width * 2);
+		g_line_buf3 = MPO_MALLOC(width * 2);
+#endif
 	}
 	// else g_hw_overlay exists, so we don't need to re-allocate it
 	
