@@ -423,10 +423,10 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
 	{
 #ifdef GCWZERO
 		// if we got a parse update, then show it ...
-static int eo3;
-if(!eo3)
-{
-eo3=3;
+//static int eo3;
+//if(!eo3)
+//{
+//eo3=3;
 		if (g_bGotParseUpdate)
 		{
 			// redraw screen blitter before we display it
@@ -436,9 +436,9 @@ eo3=3;
 			vid_flip();
 			g_bGotParseUpdate = false;
 		}
-}
-else
-eo3--;
+//}
+//else
+//eo3--;
 		SDL_check_input();	// so that windows events are handled
 		make_delay(1);	// be nice to CPU
 #else
@@ -1755,14 +1755,15 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 			// We use _half_ of the requested vertical offset because the mpeg video is twice
 			// the size of the overlay
 			Uint8 *gamevid_pixels = (Uint8 *) gamevid->pixels - (gamevid->w * (g_vertical_offset - g_vertical_stretch));
-			
+			Uint8 *gamevid_pixels2 = (Uint8 *) gamevid->pixels - (gamevid->w * (g_vertical_offset - g_vertical_stretch));
+			gamevid_pixels2++;
 			unsigned int row = 0;
 			unsigned int col = 0;
 			Uint32 w_double = g_hw_overlay->w << 1;	// twice the overlay width, to avoid calculating this more than once
-			Uint32 w_double2 = g_hw_overlay->w << 2;	// twice the overlay width, to avoid calculating this more than once
-			Uint32 w_half = g_hw_overlay->w >> 1;	// half the overlay width, to avoid calculating this more than once
+//			Uint32 w_double2 = g_hw_overlay->w << 2;	// twice the overlay width, to avoid calculating this more than once
+//			Uint32 w_half = g_hw_overlay->w >> 1;	// half the overlay width, to avoid calculating this more than once
 			Uint32 h_half = g_hw_overlay->h >> 1;	// half of the overlay height, to avoid calculating this more than once
-			Uint32 h_normal = g_hw_overlay->h;	// the overlay height, to avoid calculating this more than once
+//			Uint32 h_normal = g_hw_overlay->h;	// the overlay height, to avoid calculating this more than once
 			Uint8 *dst_ptr;
 			
 			// this could be global, any benefit?
@@ -1792,32 +1793,175 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 				int adjusted_row = ((int) row) - g_vertical_offset;
 				bool row_in_range = ((adjusted_row >= 0) && (adjusted_row < gamevid->h));
 				t_yuv_color *palette = NULL;
+				t_yuv_color *palette2 = NULL;
 				
 				// do 4 bytes at a time, for twice the width of the overlay since we're using YUY2
 				for (col = 0; col < w_double; col += 4)
 				{
-//draw the video first
-						unsigned int Y_chunk = *((Uint16 *) Y);
-						unsigned int Y2_chunk = *((Uint16 *) Y2);
+					//draw the video first
+					unsigned int Y_chunk = *((Uint16 *) Y);
+					unsigned int Y2_chunk = *((Uint16 *) Y2);
 
-						unsigned int V_chunk = *V;
-						unsigned int U_chunk = *U;
-						*((Uint32 *) (g_line_buf + col)) = (Y_chunk & 0xFF) | (U_chunk << 8) |
-							((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
-						*((Uint32 *) (g_line_buf2 + col)) = (Y2_chunk & 0xFF) | (U_chunk << 8) |
-							((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
+					unsigned int V_chunk = *V;
+					unsigned int U_chunk = *U;
+					*((Uint32 *) (g_line_buf + col)) = (Y_chunk & 0xFF) | (U_chunk << 8) |
+						((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
+					*((Uint32 *) (g_line_buf2 + col)) = (Y2_chunk & 0xFF) | (U_chunk << 8) |
+						((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
 					Y += 2;
 					Y2 += 2;
 					U++;
 					V++;
 				}
 				static int eop;
+
 				if(eop) eop--;
 				else eop++;
+
+
+				for (col = 0; col < w_double; col += 4)
+				{
+					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
+					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
+					if (palette2->transparent || (palette2 == NULL) )
+					{
+//2nd pixel is transparent
+						if(palette->transparent || (palette == NULL) )
+						{
+						//1st pixel is also transparent so do nothing
+						}
+						else
+						{
+//TODO	Make second pixel black instead? (Y1)
+							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
+							*((Uint32 *) (g_line_buf + col)) = YUY2_BLACK;
+							*((Uint32 *) (g_line_buf + col)) = 
+								 palette->y | (palette->u << 8) |
+								 (palette->v << 24);
+						}
+					}
+					else if ((palette == NULL) || palette->transparent)
+					{
+//first pixel is transparent so draw both pixels the same colour
+							*((Uint32 *) (g_line_buf + col)) = YUY2_BLACK;
+							*((Uint32 *) (g_line_buf + col)) = 
+								 (palette2->u << 8) |
+								 (palette2->y <<16) | (palette2->v << 24);
+					}
+					else
+					{
+					//both pixels are overlay
+
+					//are they the same colour?
+						if( (palette->y == palette2->y) && (palette->u == palette2->u) && (palette->v == palette2->v) )
+						{
+						//yes, so this one's easy
+							*((Uint32 *) (g_line_buf + col)) = 
+								 palette->y | (palette->u << 8) |
+								 (palette->y <<16) | (palette->v << 24);
+						}
+						else
+						{
+						//nope, so best we can do is alternate the colours and hope for the best
+							if(!eop)
+							{
+								*((Uint32 *) (g_line_buf + col)) = 
+									 palette->y | (palette->u << 8) |
+									 (palette2->y <<16) | (palette2->v << 24);
+							}
+							else
+							{
+								*((Uint32 *) (g_line_buf + col)) = 
+									 palette->y | (palette2->v << 8) |
+									 (palette2->y <<16) | (palette->v << 24);
+							}
+						}
+					}
+					gamevid_pixels  +=2;
+					gamevid_pixels2 +=2;
+				}
+
+				for (col = 0; col < w_double; col += 4)
+				{
+					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
+					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
+					if (palette2->transparent || (palette2 == NULL) )
+					{
+//2nd pixel is transparent
+						if(palette->transparent || (palette == NULL) )
+						{
+						//1st pixel is also transparent so do nothing
+						}
+						else
+						{
+//TODO	Make second pixel black instead? (Y1)
+							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
+							*((Uint32 *) (g_line_buf2 + col)) = YUY2_BLACK;
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette->y | (palette->u << 8) |
+								 (palette->v << 24);
+						}
+					}
+					else if ((palette == NULL) || palette->transparent)
+					{
+//first pixel is transparent so draw both pixels the same colour
+							*((Uint32 *) (g_line_buf2 + col)) = YUY2_BLACK;
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 (palette2->u << 8) |
+								 (palette2->y <<16) | (palette2->v << 24);
+					}
+					else
+					{
+					//both pixels are overlay
+
+					//are they the same colour?
+						if( (palette->y == palette2->y) && (palette->u == palette2->u) && (palette->v == palette2->v) )
+						{
+						//yes, so this one's easy
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette->y | (palette->u << 8) |
+								 (palette->y <<16) | (palette->v << 24);
+						}
+						else
+						{
+						//nope, so best we can do is alternate the colours and hope for the best
+							if(!eop)
+							{
+								*((Uint32 *) (g_line_buf2 + col)) = 
+									 palette->y | (palette->u << 8) |
+									 (palette2->y <<16) | (palette->v << 24);
+							}
+							else
+							{
+								*((Uint32 *) (g_line_buf2 + col)) = 
+									 palette->y | (palette2->u << 8) |
+									 (palette2->y <<16) | (palette2->v << 24);
+							}
+						}
+					}
+					gamevid_pixels  +=2;
+					gamevid_pixels2 +=2;
+				}
+
+
+/*
 				for (col = 0; col < w_double; col += 2)
 				{
 					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
-					if ((palette == NULL) || palette->transparent)
+					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
+					if (palette2->transparent || (palette2 == NULL) )
+					{
+						if(palette->transparent || (palette == NULL) )
+						{}
+						else
+						{
+							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
+								*((Uint32 *) (g_line_buf + col)) = 
+									 palette->y | (palette->u << 8) |
+									 (palette->y <<16) | (palette->v << 24);
+						}
+					}
+					else if ((palette == NULL) || palette->transparent)
 					{
 					}
 					else
@@ -1834,11 +1978,29 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						}
 					}
 					gamevid_pixels++;
+					gamevid_pixels2++;
 				}
+*/
+
+
+/*
 				for (col = 0; col < w_double; col += 2)
 				{
 					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
-					if ((palette == NULL) || palette->transparent)
+					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
+					if (palette2->transparent || (palette2 == NULL) )
+					{
+						if(palette->transparent || (palette == NULL) )
+						{}
+						else
+						{
+							//The next pixel is video overlay so we'll add another overlay pixel instead to avoid funny colours
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette->y | (palette->u << 8) |
+									 (palette->y << 16) | (palette->v << 24);
+						}
+					}
+					else if ((palette == NULL) || palette->transparent)
 					{
 					}
 					else
@@ -1855,7 +2017,9 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						}
 					}
 					gamevid_pixels++;
+					gamevid_pixels2++;
 				}
+*/
 				memcpy(dst_ptr, g_line_buf, (g_hw_overlay->w << 1));
 				memcpy(dst_ptr + channel0_pitch, g_line_buf2, (g_hw_overlay->w << 1));
 				dst_ptr += (channel0_pitch << 1);	// we've done 2 rows, so skip a row
@@ -2187,7 +2351,7 @@ void report_mpeg_dimensions_callback(int width, int height)
 	// if an overlay exists, but its dimensions are wrong, we need to de-allocate it
 	if (g_hw_overlay && ((g_hw_overlay->w != width) || (g_hw_overlay->h != height)))
 	{
-#ifdef GCWZERO2
+#ifdef GCWZERO
 #else
 		free_yuv_overlay();		
 #endif
@@ -2197,18 +2361,11 @@ void report_mpeg_dimensions_callback(int width, int height)
 	g_ldp->set_blitting_allowed(false);
 
 	// if our overlay has been de-allocated, or if we never had one to begin with ... then allocate it now
-//#ifdef GCWZERO
-//#else
 	if (!g_hw_overlay)
-//#endif
 	{
 		// create overlay, taking into account any letterbox removal we're doing
 		// (*4 because our pixels are *2 the height of the graphics, AND we're doing it at the top and bottom)
-#ifdef GCWZERO
-		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 2), SDL_YUY2_OVERLAY, get_screen());
-#else
 		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 4), SDL_YUY2_OVERLAY, get_screen());
-#endif
 		// safety check
 		if (!g_hw_overlay)
 		{
@@ -2229,11 +2386,7 @@ void report_mpeg_dimensions_callback(int width, int height)
 		
 		// we don't need to check whether these buffers have been allocated or not because this is checked for earlier
 		// when we check to see if g_hw_overlay has been allocated
-#ifdef GCWZERO
 		g_blank_yuv_buf.Y_size = width*height;
-#else
-		g_blank_yuv_buf.Y_size = width*height;
-#endif
 		g_blank_yuv_buf.Y = MPO_MALLOC(g_blank_yuv_buf.Y_size);
 		memset(g_blank_yuv_buf.Y, 0, g_blank_yuv_buf.Y_size);	// blank Y color
 		g_blank_yuv_buf.UV_size = g_blank_yuv_buf.Y_size >> 2;
@@ -2243,15 +2396,9 @@ void report_mpeg_dimensions_callback(int width, int height)
 		memset(g_blank_yuv_buf.V, 127, g_blank_yuv_buf.UV_size);	// blank V color
 		
 		// yuy2 needs twice as much space across for lines
-#ifdef GCWZERO
 		g_line_buf = MPO_MALLOC(width * 2);
 		g_line_buf2 = MPO_MALLOC(width * 2);
 		g_line_buf3 = MPO_MALLOC(width * 2);
-#else
-		g_line_buf = MPO_MALLOC(width * 2);
-		g_line_buf2 = MPO_MALLOC(width * 2);
-		g_line_buf3 = MPO_MALLOC(width * 2);
-#endif
 	}
 	// else g_hw_overlay exists, so we don't need to re-allocate it
 	
