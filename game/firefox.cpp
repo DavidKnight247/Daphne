@@ -103,7 +103,11 @@ firefox::firefox()
 	m_video_overlay_width = FIREFOX_OVERLAY_W;
 	m_video_overlay_height = FIREFOX_OVERLAY_H;
 	m_uVideoOverlayVisibleLines = 480;	// firefox is unusual in that it has a 1:1 vertical line mapping with the laserdisc video
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// the visible area is from line 16-496 (top and bottom 16 lines are hidden)
+#else
 	m_video_row_offset = -16;	// the visible area is from line 16-496 (top and bottom 16 lines are hidden)
+#endif
 	m_palette_color_count = FIREFOX_COLORS;
 
 	cpu.type = CPU_M6809;

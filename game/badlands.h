@@ -28,7 +28,11 @@
 #define BADLANDS_CPU_HZ 14318180
 
 #define BADLANDS_OVERLAY_W 320	// width of overlay
+#ifdef GCWZERO
+#define BADLANDS_OVERLAY_H 240 // height of overlay
+#else
 #define BADLANDS_OVERLAY_H 256 // height of overlay
+#endif
 
 #define BADLANDS_COLOR_COUNT 16
 

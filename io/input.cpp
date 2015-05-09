@@ -76,31 +76,44 @@ const char *g_key_names[] =
 // NOTE : These are in a specific order, corresponding to the enum in daphne.h
 int g_key_defs[SWITCH_COUNT][2] =
 {
-	{ SDLK_UP, SDLK_KP8 },	// up
-	{ SDLK_LEFT, SDLK_KP4 },	// left
-	{ SDLK_DOWN, SDLK_KP2 },	// down
-	{ SDLK_RIGHT,  SDLK_KP6 },	// right
-//gcw	{ SDLK_1,	0 }, // 1 player start
-	{ SDLK_RETURN,	0 }, // 1 player start
-	{ SDLK_2,	0 }, // 2 player start
-	{ SDLK_SPACE, SDLK_LCTRL }, // action button 1
-	{ SDLK_LALT,	0 }, // action button 2
-	{ SDLK_LSHIFT,	0 }, // action button 3
-//	{ SDLK_5, SDLK_c }, // coin chute left
-	{ SDLK_TAB, SDLK_c }, // coin chute left
-	{ SDLK_6, 0 }, // coin chute right
-	{ SDLK_KP_DIVIDE, 0 }, // skill easy
-	{ SDLK_KP_MULTIPLY, 0 },	// skill medium
-	{ SDLK_KP_MINUS, 0 },	// skill hard
-	{ SDLK_9, 0 }, // service coin
-	{ SDLK_F2, 0 },	// test mode
-	{ SDLK_F3, 0 },	// reset cpu
-	{ SDLK_F12, SDLK_F11 },	// take screenshot
-	{ SDLK_ESCAPE, SDLK_q },	// Quit DAPHNE
-//	{ SDLK_p, 0 },	// pause game
-	{ SDLK_BACKSPACE, 0 },	// pause game
-	{ SDLK_BACKQUOTE, 0 },	// toggle console
-	{ SDLK_t, 0 },	// Tilt/Slam switch
+	{ SDLK_UP,          SDLK_KP8 },	// up
+	{ SDLK_LEFT,        SDLK_KP4 },	// left
+	{ SDLK_DOWN,        SDLK_KP2 },	// down
+	{ SDLK_RIGHT,       SDLK_KP6 },	// right
+#ifdef GCWZERO
+	{ SDLK_RETURN,      0        }, // 1 player start
+#else
+	{ SDLK_1,           0        }, // 1 player start
+#endif
+	{ SDLK_2,           0        }, // 2 player start
+	{ SDLK_LCTRL,       0        }, // action button 1
+	{ SDLK_LALT,        0        }, // action button 2
+	{ SDLK_LSHIFT,      0        }, // action button 3
+#ifdef GCWZERO
+	{ SDLK_TAB,         SDLK_c   }, // coin chute left
+#else
+	{ SDLK_5,           SDLK_c   }, // coin chute left
+#endif
+	{ SDLK_6,           0        }, // coin chute right
+	{ SDLK_KP_DIVIDE,   0        }, // skill easy
+	{ SDLK_KP_MULTIPLY, 0        },	// skill medium
+	{ SDLK_KP_MINUS,    0        },	// skill hard
+	{ SDLK_9,           0        }, // service coin
+	{ SDLK_F2,          0        },	// test mode
+	{ SDLK_F3,          0        },	// reset cpu
+	{ SDLK_F12,         SDLK_F11 },	// take screenshot
+	{ SDLK_ESCAPE,      SDLK_q   },	// Quit DAPHNE
+#ifdef GCWZERO
+	{ SDLK_BACKSPACE,   0        },	// pause game
+#else
+	{ SDLK_p,           0        },	// pause game
+#endif
+	{ SDLK_BACKQUOTE,   0        },	// toggle console
+#ifdef GCWZERO
+	{ SDLK_SPACE,       0        },	// Tilt/Slam switch
+#else
+	{ SDLK_t,           0        },	// Tilt/Slam switch
+#endif
 };
 
 ////////////

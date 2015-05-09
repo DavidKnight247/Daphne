@@ -57,8 +57,11 @@ cobraconv::cobraconv()
 	m_video_overlay_width = COBRACONV_OVERLAY_W;
 	m_video_overlay_height = COBRACONV_OVERLAY_H;
 	m_palette_color_count = COBRACONV_COLOR_COUNT;
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// 16 pixels, 8 rows
+#else
 	m_video_row_offset = -8;	// 16 pixels, 8 rows
-
+#endif
 	memset(&cpu, 0, sizeof(struct cpudef));
 	cpu.type = CPU_M6502;
 	cpu.hz = 2500000; // unverified	

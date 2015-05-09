@@ -28,8 +28,13 @@
 
 #include "game.h"
 
+#ifdef GCWZERO
+#define GPWORLD_OVERLAY_W 320 // width of overlay
+#define GPWORLD_OVERLAY_H 240 // height of overlay
+#else
 #define GPWORLD_OVERLAY_W 360 // width of overlay
 #define GPWORLD_OVERLAY_H 256 // height of overlay
+#endif
 
 #define GPWORLD_VID_ADDRESS 0xd000
 #define GPWORLD_SPRITE_ADDRESS 0xc000

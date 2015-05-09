@@ -30,6 +30,10 @@
 //  - make test switch a toggle
 //  - add samples for UVT/CC
 
+#ifdef GCWZERO
+static int invertvertical;
+#endif
+
 #ifdef WIN32
 #pragma warning (disable:4100) // disable warning about unreferenced parameter
 #endif
@@ -936,10 +940,12 @@ void mach3::input_disable(Uint8 move)
 	{
 #ifdef GCWZERO
 	case SWITCH_UP:
-		m_gamecontrols &= (unsigned char) ~0x02;	// clear bit 0
+		if(invertvertical)	m_gamecontrols &= (unsigned char) ~0x02;	// clear bit 1
+		else			m_gamecontrols &= (unsigned char) ~0x01;	// clear bit 0
 		break;
 	case SWITCH_DOWN:
-		m_gamecontrols &= (unsigned char) ~0x01;	// clear bit 1
+		if(invertvertical)	m_gamecontrols &= (unsigned char) ~0x01;	// clear bit 0
+		else			m_gamecontrols &= (unsigned char) ~0x02;	// clear bit 1
 		break;
 #else
 	case SWITCH_UP:
@@ -1008,10 +1014,12 @@ void mach3::input_enable(Uint8 move)
 	{
 #ifdef GCWZERO
 	case SWITCH_UP:
-		m_gamecontrols |= 0x02;	// set bit 0
+		if(invertvertical)	m_gamecontrols |= (unsigned char) 0x02;	// set bit 1
+		else			m_gamecontrols |= (unsigned char) 0x01;	// set bit 0
 		break;
 	case SWITCH_DOWN:
-		m_gamecontrols |= 0x01;	// set bit 1
+		if(invertvertical)	m_gamecontrols |= (unsigned char) 0x01;	// set bit 1
+		else			m_gamecontrols |= (unsigned char) 0x02;	// set bit 0
 		break;
 #else
 	case SWITCH_UP:
@@ -1057,6 +1065,9 @@ void mach3::input_enable(Uint8 move)
 		//	case SWITCH_BUTTON3: // slam/tilt, active low
 		//		m_serviceswitches &= (unsigned char) ~0x20;	
 		//		break;
+	case SWITCH_TILT:
+		invertvertical = !invertvertical;
+		break;
 	default:
 		break;
 	}

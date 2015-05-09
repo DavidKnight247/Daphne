@@ -45,6 +45,9 @@
 #include "../video/video.h"
 
 ////////////////
+#ifdef GCWZERO
+static int invertedvertical;
+#endif
 
 bega::bega()
 {
@@ -60,7 +63,11 @@ bega::bega()
    m_game_type = GAME_BEGA;
    m_disc_fps = 29.97;
 
+#ifdef GCWZERO
+   m_video_row_offset = 0;	// move overlay up by 16 pixels (8 rows)
+#else
    m_video_row_offset = -8;	// move overlay up by 16 pixels (8 rows)
+#endif
    m_video_overlay_width = BEGA_OVERLAY_W;
    m_video_overlay_height = BEGA_OVERLAY_H;
    m_palette_color_count = BEGA_COLOR_COUNT;
@@ -186,8 +193,11 @@ void bega::set_version(int version)
 cobra::cobra()  //dedicated version of Cobra Command
 {
    m_shortgamename = "cobra";
-   m_game_issues = "Game does not wook properly (graphics ploblems)";
-
+#ifdef GCWZERO
+   m_game_issues = "Graphics problems. Press Y";
+#else
+   m_game_issues = "Game does not work properly (graphics problems)";
+#endif
    const static struct rom_def cobra_roms[] =
    {
       // main cpu roms
@@ -698,16 +708,30 @@ void bega::input_enable(Uint8 move)
    switch (move)
    {
    case SWITCH_UP:
-      banks[0] &= ~0x02; 
+#ifdef GCWZERO
+	if(invertedvertical)
+	      banks[0] &= ~0x01; 
+	else
+	      banks[0] &= ~0x02; 
+#else
+	      banks[0] &= ~0x02; 
+#endif
+      break;
+   case SWITCH_DOWN:
+#ifdef GCWZERO
+	if(invertedvertical)
+	      banks[0] &= ~0x02; 
+	else
+	      banks[0] &= ~0x01; 
+#else
+      banks[0] &= ~0x01; 
+#endif
       break;
    case SWITCH_LEFT:
       banks[0] &= ~0x04; 
       break;
    case SWITCH_RIGHT:
       banks[0] &= ~0x08; 
-      break;
-   case SWITCH_DOWN:
-      banks[0] &= ~0x01; 
       break;
    case SWITCH_START1: // '1' on keyboard
       banks[1] &= ~0x20; 
@@ -737,6 +761,9 @@ void bega::input_enable(Uint8 move)
       break;
    case SWITCH_TEST: 
       break;
+   case SWITCH_TILT: 
+	invertedvertical = !invertedvertical;
+      break;
    default:
       printline("Error, bug in move enable");
       break;
@@ -749,7 +776,14 @@ void bega::input_disable(Uint8 move)
    switch (move)
    {
    case SWITCH_UP:
+#ifdef GCWZERO
+	if(invertedvertical)
+	      banks[0] |= 0x01; 
+	else
+	      banks[0] |= 0x02; 
+#else
       banks[0] |= 0x02; 
+#endif
       break;
    case SWITCH_LEFT:
       banks[0] |= 0x04; 
@@ -758,7 +792,14 @@ void bega::input_disable(Uint8 move)
       banks[0] |= 0x08; 
       break;
    case SWITCH_DOWN:
+#ifdef GCWZERO
+	if(invertedvertical)
+	      banks[0] |= 0x02; 
+	else
+	      banks[0] |= 0x01; 
+#else
       banks[0] |= 0x01; 
+#endif
       break;
    case SWITCH_START1: // '1' on keyboard
       banks[1] |= 0x20; 
@@ -791,7 +832,6 @@ void bega::input_disable(Uint8 move)
       break;
    }
 }
-
 void bega::draw_8x8(int character_number, Uint8 *character_set, int xcoord, int ycoord,
                     int xflip, int yflip, int color)
 {
@@ -816,7 +856,9 @@ void bega::draw_8x8(int character_number, Uint8 *character_set, int xcoord, int 
       {
          if (pixel[x])
          {
-            *((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + ((ycoord + (yflip ? y : (7-y))) * BEGA_OVERLAY_W) + (xcoord + (xflip ? (7-x) : x))) = pixel[x] + (8*color);
+            *( (Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + 
+		( (ycoord + (yflip ? y     : (7-y) ) ) * BEGA_OVERLAY_W) + 
+		  (xcoord + (xflip ? (7-x) :    x) ) ) = pixel[x] + (8*color);
          }
       }
    }
@@ -857,7 +899,9 @@ void bega::draw_16x16(int character_number, Uint8 *character_set, int xcoord, in
       {
          if (pixel[x])
          {
-            *((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + ((ycoord + (yflip ? y : (15-y))) * BEGA_OVERLAY_W) + (xcoord + (xflip ? (15-x) : x))) = pixel[x] + (8*color);
+            *( (Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + 
+		( (ycoord + (yflip ?  y     : (15-y) ) ) * BEGA_OVERLAY_W ) + 
+		  (xcoord + (xflip ? (15-x) :  x   ) ) ) = pixel[x] + (8*color);
          }
 
       }

@@ -66,7 +66,7 @@ static void null_draw_frame (vo_instance_t *instance, uint8_t * const * buf, voi
 			s64Ms = (s64Ms * 1000000) / g_out_info.uFpks;
 
 			// compute how much time ought to have elapsed based on our frame count
-			correct_elapsed_ms = (Sint32) (s64Ms) +
+			correct_elapsed_ms = (Sint64) (s64Ms) +
 				// add on any extra delay that has been requested (simulated seek delay)
 				s_extra_delay_ms;
 			actual_elapsed_ms = g_in_info->uMsTimer - s_timer;

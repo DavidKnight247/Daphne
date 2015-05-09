@@ -39,7 +39,7 @@ unsigned int GetTicksFunc()
 	return GET_TICKS();
 }
 
-#ifdef GP2X
+#if !defined(GP2X)
 unsigned int g_uLastTicks = 0;
 unsigned int g_uExtraMs = 0;
 

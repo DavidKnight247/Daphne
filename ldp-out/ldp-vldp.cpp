@@ -163,7 +163,11 @@ bool ldp_vldp::init_player()
 				// This is safe because if they have been parsed, it will just skip them
 				if (!last_video_file_parsed())
 				{
+#ifdef GCWZERO
+					printnotice("Press Y to parse video. This may take a while. ");
+#else
 					printnotice("Press any key to parse your video file(s). This may take a while. Press ESC if you'd rather quit.");
+#endif
 					need_to_parse = true;
 				}
 				
@@ -253,7 +257,6 @@ bool ldp_vldp::init_player()
 							if (bPreCacheOK)
 							{
 								blitting_allowed = false;	// this is the point where blitting isn't allowed anymore
-
 								// open first file so that
 								// we can draw video overlay even if the disc is not playing
 								if (open_and_block(m_mpeginfo[0].name))
@@ -421,27 +424,6 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
 
 	while (g_vldp_info->status == STAT_BUSY)
 	{
-#ifdef GCWZERO
-		// if we got a parse update, then show it ...
-//static int eo3;
-//if(!eo3)
-//{
-//eo3=3;
-		if (g_bGotParseUpdate)
-		{
-			// redraw screen blitter before we display it
-			update_parse_meter();
-			vid_blank();
-			vid_blit(get_screen_blitter(), 0, 0);
-			vid_flip();
-			g_bGotParseUpdate = false;
-		}
-//}
-//else
-//eo3--;
-		SDL_check_input();	// so that windows events are handled
-		make_delay(1);	// be nice to CPU
-#else
 		// if we got a parse update, then show it ...
 		if (g_bGotParseUpdate)
 		{
@@ -455,7 +437,6 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
 
 		SDL_check_input();	// so that windows events are handled
 		make_delay(20);	// be nice to CPU
-#endif
 	}
 
 	// if opening succeeded
@@ -543,7 +524,11 @@ bool ldp_vldp::nonblocking_search(char *frame)
 			}
 			else
 			{
+#ifdef GCWZERO
+				outstr("LDP-VLDP.CPP : No video file ");
+#else
 				outstr("LDP-VLDP.CPP : Could not open video file ");
+#endif
 				printline(filename.c_str());
 				result = false;
 			}
@@ -1307,7 +1292,11 @@ bool ldp_vldp::read_frame_conversions()
 	}
 	else
 	{
+#ifdef GCWZERO
+		s = "No framefile@" + m_framefile;
+#else
 		s = "Could not open framefile : " + m_framefile;
+#endif
 		printerror(s.c_str());
 	}
 	
@@ -1754,16 +1743,20 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 			// adjust for vertical offset
 			// We use _half_ of the requested vertical offset because the mpeg video is twice
 			// the size of the overlay
-			Uint8 *gamevid_pixels = (Uint8 *) gamevid->pixels - (gamevid->w * (g_vertical_offset - g_vertical_stretch));
-			Uint8 *gamevid_pixels2 = (Uint8 *) gamevid->pixels - (gamevid->w * (g_vertical_offset - g_vertical_stretch));
+#ifdef GCWZERO
+//but we don't because it isn't :)
+//this might cause Cliffhanger to crash though :(
+			Uint8 *gamevid_pixels  = (Uint8 *) gamevid->pixels - (gamevid->w * (2 * g_vertical_offset - g_vertical_stretch));
+			Uint8 *gamevid_pixels2 = (Uint8 *) gamevid->pixels - (gamevid->w * (2 * g_vertical_offset - g_vertical_stretch));
+#else
+			Uint8 *gamevid_pixels  = (Uint8 *) gamevid->pixels - (gamevid->w * (    g_vertical_offset - g_vertical_stretch));
+			Uint8 *gamevid_pixels2 = (Uint8 *) gamevid->pixels - (gamevid->w * (    g_vertical_offset - g_vertical_stretch));
+#endif
 			gamevid_pixels2++;
 			unsigned int row = 0;
 			unsigned int col = 0;
 			Uint32 w_double = g_hw_overlay->w << 1;	// twice the overlay width, to avoid calculating this more than once
-//			Uint32 w_double2 = g_hw_overlay->w << 2;	// twice the overlay width, to avoid calculating this more than once
-//			Uint32 w_half = g_hw_overlay->w >> 1;	// half the overlay width, to avoid calculating this more than once
 			Uint32 h_half = g_hw_overlay->h >> 1;	// half of the overlay height, to avoid calculating this more than once
-//			Uint32 h_normal = g_hw_overlay->h;	// the overlay height, to avoid calculating this more than once
 			Uint8 *dst_ptr;
 			
 			// this could be global, any benefit?
@@ -1787,6 +1780,8 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 			}
 			// do 2 rows at a time
 
+			static int eop;
+			eop = !eop;
 			for (row = 0; row < h_half; row++)
 			{
 				// calculate this here to avoid calculating too often
@@ -1813,11 +1808,8 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 					U++;
 					V++;
 				}
-				static int eop;
 
-				if(eop) eop--;
-				else eop++;
-
+				eop = !eop;
 
 				for (col = 0; col < w_double; col += 4)
 				{
@@ -1832,7 +1824,6 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						}
 						else
 						{
-//TODO	Make second pixel black instead? (Y1)
 							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
 							*((Uint32 *) (g_line_buf + col)) = YUY2_BLACK;
 							*((Uint32 *) (g_line_buf + col)) = 
@@ -1863,24 +1854,34 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						else
 						{
 						//nope, so best we can do is alternate the colours and hope for the best
+//already tried							*((Uint32 *) (g_line_buf + col)) = 
+//								 palette2->y | (palette2->u << 8) |
+//								 (palette2->y <<16) | (palette2->v << 24);
+//							*((Uint32 *) (g_line_buf + col)) = 
+//								 palette->y | (palette->u << 8) |
+//								 (palette->y <<16) | (palette->v << 24);
+
+// In theory this is better. In practice it gives you a headache :(
 							if(!eop)
 							{
 								*((Uint32 *) (g_line_buf + col)) = 
 									 palette->y | (palette->u << 8) |
-									 (palette2->y <<16) | (palette2->v << 24);
+									 (palette2->y <<16) | (palette->v << 24);
 							}
 							else
 							{
 								*((Uint32 *) (g_line_buf + col)) = 
-									 palette->y | (palette2->v << 8) |
-									 (palette2->y <<16) | (palette->v << 24);
+									 palette->y | (palette2->u << 8) |
+									 (palette2->y <<16) | (palette2->v << 24);
 							}
+
 						}
 					}
 					gamevid_pixels  +=2;
 					gamevid_pixels2 +=2;
 				}
 
+				eop = !eop;
 				for (col = 0; col < w_double; col += 4)
 				{
 					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
@@ -1894,7 +1895,6 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						}
 						else
 						{
-//TODO	Make second pixel black instead? (Y1)
 							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
 							*((Uint32 *) (g_line_buf2 + col)) = YUY2_BLACK;
 							*((Uint32 *) (g_line_buf2 + col)) = 
@@ -1925,6 +1925,11 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						else
 						{
 						//nope, so best we can do is alternate the colours and hope for the best
+							*((Uint32 *) (g_line_buf2 + col)) = 
+								 palette2->y | (palette2->u << 8) |
+								 (palette2->y <<16) | (palette2->v << 24);
+
+// In theory this is better. In practice it gives you a headache :(
 							if(!eop)
 							{
 								*((Uint32 *) (g_line_buf2 + col)) = 
@@ -1937,89 +1942,13 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 									 palette->y | (palette2->u << 8) |
 									 (palette2->y <<16) | (palette2->v << 24);
 							}
+
 						}
 					}
 					gamevid_pixels  +=2;
 					gamevid_pixels2 +=2;
 				}
 
-
-/*
-				for (col = 0; col < w_double; col += 2)
-				{
-					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
-					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
-					if (palette2->transparent || (palette2 == NULL) )
-					{
-						if(palette->transparent || (palette == NULL) )
-						{}
-						else
-						{
-							//The next pixel is video so we'll add another overlay pixel instead to avoid funny colours
-								*((Uint32 *) (g_line_buf + col)) = 
-									 palette->y | (palette->u << 8) |
-									 (palette->y <<16) | (palette->v << 24);
-						}
-					}
-					else if ((palette == NULL) || palette->transparent)
-					{
-					}
-					else
-					{
-						if(!eop)
-						{
-							*((Uint32 *) (g_line_buf + col)) = 
-								 palette->y | (palette->u << 8);
-						}
-						else
-						{
-							*((Uint32 *) (g_line_buf + col)) = 
-								 palette->y | (palette->v << 8);
-						}
-					}
-					gamevid_pixels++;
-					gamevid_pixels2++;
-				}
-*/
-
-
-/*
-				for (col = 0; col < w_double; col += 2)
-				{
-					if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
-					if (row_in_range) palette2 = &yuv_palette[*gamevid_pixels2];
-					if (palette2->transparent || (palette2 == NULL) )
-					{
-						if(palette->transparent || (palette == NULL) )
-						{}
-						else
-						{
-							//The next pixel is video overlay so we'll add another overlay pixel instead to avoid funny colours
-							*((Uint32 *) (g_line_buf2 + col)) = 
-								 palette->y | (palette->u << 8) |
-									 (palette->y << 16) | (palette->v << 24);
-						}
-					}
-					else if ((palette == NULL) || palette->transparent)
-					{
-					}
-					else
-					{
-						if(!eop)
-						{
-							*((Uint32 *) (g_line_buf2 + col)) = 
-								 palette->y | (palette->u << 8);
-						}
-						else
-						{
-							*((Uint32 *) (g_line_buf2 + col)) = 
-								 palette->y | (palette->v << 8);
-						}
-					}
-					gamevid_pixels++;
-					gamevid_pixels2++;
-				}
-*/
 				memcpy(dst_ptr, g_line_buf, (g_hw_overlay->w << 1));
 				memcpy(dst_ptr + channel0_pitch, g_line_buf2, (g_hw_overlay->w << 1));
 				dst_ptr += (channel0_pitch << 1);	// we've done 2 rows, so skip a row
@@ -2258,7 +2187,11 @@ void update_parse_meter()
 			char s[160];
 			int half_h = screen->h >> 1;	// calculations to center message on screen ...
 			int half_w = screen->w >> 1;
+#ifdef GCWZERO
+			sprintf(s, "Video parsing %02.f%%, %02.f s remaining.\n", percent_complete, remaining_s);
+#else
 			sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds remaining.\n", percent_complete, remaining_s);
+#endif
 			SDLDrawText(s, screen, FONT_SMALL, (half_w-((strlen(s)/2)*FONT_SMALL_W)), half_h-FONT_SMALL_H);
 
 			// now draw a little graph thing ...
@@ -2351,10 +2284,7 @@ void report_mpeg_dimensions_callback(int width, int height)
 	// if an overlay exists, but its dimensions are wrong, we need to de-allocate it
 	if (g_hw_overlay && ((g_hw_overlay->w != width) || (g_hw_overlay->h != height)))
 	{
-#ifdef GCWZERO
-#else
 		free_yuv_overlay();		
-#endif
 	}
 
 	// blitting is not allowed once we create the YUV overlay ...
@@ -2365,7 +2295,11 @@ void report_mpeg_dimensions_callback(int width, int height)
 	{
 		// create overlay, taking into account any letterbox removal we're doing
 		// (*4 because our pixels are *2 the height of the graphics, AND we're doing it at the top and bottom)
+#ifdef GCWZERO //*2 because our pixels are the same height
+		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 2), SDL_YUY2_OVERLAY, get_screen());
+#else
 		g_hw_overlay = SDL_CreateYUVOverlay (width, height - (g_vertical_stretch * 4), SDL_YUY2_OVERLAY, get_screen());
+#endif
 		// safety check
 		if (!g_hw_overlay)
 		{

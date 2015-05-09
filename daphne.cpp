@@ -236,7 +236,9 @@ int main(int argc, char **argv)
 							}
 							else
 							{
+#ifndef GCWZERO
 								printerror("Could not initialize laserdisc player!");
+#endif
 							}
 							g_game->video_shutdown();
 						} // end if game video was initted properly

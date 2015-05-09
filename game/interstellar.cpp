@@ -146,7 +146,11 @@ interstellar::interstellar()
 	m_video_overlay_width = INTERSTELLAR_OVERLAY_W;
 	m_video_overlay_height = INTERSTELLAR_OVERLAY_H;
 	m_palette_color_count = INTERSTELLAR_COLOR_COUNT;
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// 32 pixels, 16 rows
+#else
 	m_video_row_offset = -16;	// 32 pixels, 16 rows
+#endif
 
 	// 0 is the transparent value by default, so we need set up nothing
 

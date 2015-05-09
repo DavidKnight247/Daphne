@@ -737,11 +737,15 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
 void tms9128nl_outcommand(char *s,int col,int row)
 {
 // gp2x doesn't have enough resolution to display this schlop anyway...
-#ifndef GP2X
+#if !defined(GP2X)
     SDL_Rect dest;
-
+#ifdef GCWZERO
+    dest.x = 0;
+    dest.y = 0;
+#else
     dest.x = (short) ((col*6) + 200);
     dest.y = (short) ((row*13) + 100);
+#endif
     dest.w = (unsigned short) (6 * strlen(s)); // width of rectangle area to draw (width of font * length of string)
     dest.h = 13;	// height of area (height of font)
 

@@ -34,7 +34,11 @@
 					// based on the strobe signal from the ldv-1000
 
 #define SUPERD_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define SUPERD_OVERLAY_H 240 // height of overlay
+#else
 #define SUPERD_OVERLAY_H 256 // height of overlay
+#endif
 #define SUPERD_COLOR_COUNT 32
 
 enum { S_SD_COIN, S_SD_SUCCEED, S_SD_FAIL, S_SDA_SUCCESS_LO, S_SDA_SUCCESS_HI };

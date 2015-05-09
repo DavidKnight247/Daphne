@@ -119,8 +119,12 @@ gtg::gtg()
 {
 	m_shortgamename = "gtg";
 	m_game_type = GAME_GTG;
+#ifdef GCWZERO
+	m_game_issues = "When we fixed Cliff, we broke this game. Press Y.";
+#else
 	m_game_issues = "When we fixed Cliff, we broke this game, sorry! hehe";
-	
+#endif	
+
 	disc_side = 1;  //default to side 1 if no -preset is used
 	e1ba_accesscount = 0;
 

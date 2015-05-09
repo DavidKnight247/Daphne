@@ -26,7 +26,11 @@
 #include "game.h"
 
 #define BEGA_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define BEGA_OVERLAY_H 240 // height of overlay
+#else
 #define BEGA_OVERLAY_H 256 // height of overlay
+#endif
 
 // which color index will be transparent
    // wdo 2005-04-11:  Bega's, Road Blaster, and Cobra Command all set every 8th color to black (7,15,23, etc), so it's

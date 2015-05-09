@@ -26,7 +26,11 @@
 #include "game.h"
 
 #define STARRIDER_OVERLAY_W 320	// width of overlay
+#ifdef GCWZERO
+#define STARRIDER_OVERLAY_H 240 // height of overlay
+#else
 #define STARRIDER_OVERLAY_H 256 // height of overlay
+#endif
 
 class starrider : public game
 {

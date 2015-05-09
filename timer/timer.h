@@ -28,7 +28,7 @@
 
 #include <SDL.h>
 
-#ifndef GP2X
+#if !defined(GP2X) || !defined(GCWZERO)
 // not GP2X code ...
 #define GET_TICKS SDL_GetTicks
 #define MAKE_DELAY SDL_Delay

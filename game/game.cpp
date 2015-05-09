@@ -373,7 +373,6 @@ bool game::video_init()
     // set instance variables and local variables to the actual screen (or window) dimension
     m_video_screen_width = w = get_screen_blitter()->w;
     m_video_screen_height = h = get_screen_blitter()->h;
-	
     // if this particular game uses video overlay (most do)
 	if (m_game_uses_video_overlay)
 	{
@@ -416,13 +415,11 @@ bool game::video_init()
                     srcy+=dy;
                 } /*endfor*/
             } // end if fullscale is enabled
-
 			// create each buffer
 			for (index = 0; index < m_video_overlay_count; index++)
 			{
 				m_video_overlay[index] = SDL_CreateRGBSurface(SDL_SWSURFACE, 
 					m_video_overlay_width, m_video_overlay_height, 8, 0, 0, 0, 0); // create an 8-bit surface
-
 				// check to see if we got an error (this should never happen)
 				if (!m_video_overlay[index])
 				{
@@ -538,10 +535,11 @@ void game::video_blit()
 				else
 				{
 					// scale game graphics to the screen dimensions
-					Scale(m_video_overlay[m_active_video_overlay], 
-						m_video_overlay_scaled, 
-						m_video_overlay_matrix);
-					vid_blit(m_video_overlay_scaled, 0, 0);
+//					Scale(m_video_overlay[m_active_video_overlay], 
+//						m_video_overlay_scaled, 
+//						m_video_overlay_matrix);
+//					vid_blit(m_video_overlay_scaled, 0, 0);
+					vid_blit(m_video_overlay[m_active_video_overlay], 0, 0);
 				} /*endelse*/
 #ifdef USE_OPENGL
 			}

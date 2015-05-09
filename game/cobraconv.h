@@ -26,7 +26,11 @@
 #include "game.h"
 
 #define COBRACONV_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define COBRACONV_OVERLAY_H 240 // height of overlay
+#else
 #define COBRACONV_OVERLAY_H 256 // height of overlay
+#endif
 
 #define COBRACONV_COLOR_COUNT 32	// # of colors in palette
 #define COBRACONV_GAMMA 1.0 // brightness adjustment 

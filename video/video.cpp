@@ -119,7 +119,7 @@ bool init_display()
 	bool abnormalscreensize = true; // assume abnormal
 	const SDL_VideoInfo *vidinfo = NULL;
 #ifdef GCWZERO
-	Uint8 suggested_bpp = 16;
+	Uint8 suggested_bpp = 32;
 #else
 	Uint8 suggested_bpp = 0;
 #endif
@@ -131,7 +131,8 @@ bool init_display()
 	if (hw_env && (hw_env[0] == '0'))
 	{
 #ifdef GCWZERO
-		sdl_flags = SDL_SWSURFACE|SDL_ANYFORMAT;
+//testing		sdl_flags = SDL_SWSURFACE|SDL_ANYFORMAT;
+		sdl_flags = SDL_HWSURFACE|SDL_DOUBLEBUF;
 #else
 		sdl_flags = SDL_SWSURFACE;
 #endif
@@ -224,9 +225,7 @@ bool init_display()
 		{
 #ifdef GCWZERO
 			SDL_ShowCursor(SDL_DISABLE);	// always hide mouse for gcw0
-//			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
-//			g_screen = SDL_SetVideoMode(640, 480, 16, SDL_SWSURFACE | SDL_ANYFORMAT);
-			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, 16, SDL_SWSURFACE | SDL_ANYFORMAT);
+			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, 32, SDL_HWSURFACE);
 #else
 			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
 #endif //GCWZERO
@@ -249,11 +248,11 @@ bool init_display()
 		g_screen_blitter = SDL_CreateRGBSurface(SDL_SWSURFACE,
                                         g_vid_width,
                                         g_vid_height,
-#ifdef GCWZERO
-										16,
-#else
+//#ifdef GCWZERO
+//										16,
+//#else
 										32,
-#endif
+//#endif
 										0xff, 0xFF00, 0xFF0000, 0xFF000000);
 
 		if (g_screen && g_screen_blitter)
@@ -397,16 +396,17 @@ void vid_flip()
 	if (!g_bUseOpenGL)
 	{
 #ifdef GCWZERO
-static int eo3;
-if(!eo3)
-{
-eo3=3;
+//		static int eo3;
+//		if(!eo3)
+//		{
+//			eo3=3;
+//SDL_UpdateRect(g_screen, 0,0, 0, 0);
 		SDL_Flip(g_screen);
-}
-else
-{
-eo3--;
-}
+//		}
+//		else
+//		{
+//			eo3--;
+//		}
 #else
 		SDL_Flip(g_screen);
 #endif
@@ -1101,8 +1101,13 @@ void draw_string(const char* t, int col, int row, SDL_Surface* overlay)
 {
 	SDL_Rect dest;
 
+#ifdef GCWZERO
+	dest.x = 0;
+	dest.y = 0;
+#else
 	dest.x = (short) ((col*6));
 	dest.y = (short) ((row*13));
+#endif
 	dest.w = (unsigned short) (6 * strlen(t)); // width of rectangle area to draw (width of font * length of string)
 	dest.h = 13;	// height of area (height of font)
 		

@@ -1,0 +1,132 @@
+Daphne Laserdisc Emulator
+
+By Matt Ownby
+GCW0 port by David Knight
+Thanks to Xaijiqq from the Dingoonity forums for testing.
+
+Homepage: www.daphne-emu.com
+GCW0 port sourcecode: www.github.com/DavidKnight247/Daphne
+
+Daphne is an emulator which plays classic arcade laserdisc games from the 1980's. Probably the most famous of which was Dragons Lair. 
+Instructions for how to get these titles to run are below.
+
+Controls
+--------
+D-Pad: Directions
+A: Button 1
+B: Button 2
+X: Button 3
+Y: Tilt/Swap vertical controls (for flight sims)
+L: Insert coin (player 1)
+R: Pause
+SELECT: Quit emulator
+START: Start game (you must have inserted a coin first)
+
+How to run games
+----------------
+
+Daphne does not come with any built-in games so you are going to have to find them. 
+The first place I'd suggest looking is on the daphne homepage as you may find some useful links there ;).
+
+To use Daphne you are going to need four files:
+gamename.zip (zipped rom file)
+gamename.txt (frame file)
+gamename.ogg (audio file)
+gamename.m2v (video file)
+You will also probably have a gamename.dat file but you won't be needing that so DON'T copy this file across to your gcw0.
+
+Once you have the above files, you will need to convert the video file to the correct resolution. A converted video is typically around 200MB.
+An unconverted video will create the wrong .dat file, cause a greenscreen and major slowdowns. 
+If you accidentally run Daphne before converting the .m2v file you will need to delete the .dat file and start again.
+
+Place all four files into the same directory (eg $HOME/daphne/bega/)
+Run Daphne. Press "Y" to create a new dat file (takes around 15 seconds)
+The game will now start.
+
+If you get any problems check the log file in $HOME/.daphne/daphne_log.txt
+
+How to convert the .m2v file
+----------------------------
+
+Probably the easiest method using Windows is to use ffmpeg, available here:
+www.ffmpeg.zeranoe.com/builds/ and download the latest static build.
+
+Once unpacked, place the .m2v file you want to convert into the "bin" directory.
+Then run "ff-prompt.bat". A command-line will pop-up.
+
+Now type the following depending on which game you are playing:
+(note, not all of these have been tested. The resolution should be half it's unconverted value)
+
+Space Ace
+ffmpeg -i ace.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 ace.mpg
+ffmpeg -i ace.mpg -vcodec copy -an ace.m2v
+
+Astron Belt
+ffmpeg -i astron.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 astron.mpg
+ffmpeg -i astron.mpg -vcodec copy -an astron.m2v
+
+Badlands
+ffmpeg -i badlands.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 badlands.mpg
+ffmpeg -i badlands.mpg -vcodec copy -an badlands.m2v
+
+Bega's Battle
+ffmpeg -i bega.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 bega.mpg
+ffmpeg -i bega.mpg -vcodec copy -an bega.m2v
+
+Star Blazer
+ffmpeg -i blazer.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 blazer.mpg
+ffmpeg -i blazer.mpg -vcodec copy -an blazer.m2v
+
+Cliff Hanger
+ffmpeg -i cliff.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 cliff.mpg
+ffmpeg -i cliff.mpg -vcodec copy -an cliff.m2v
+
+Cobra Command
+ffmpeg -i cobra.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 cobra.mpg
+ffmpeg -i cobra.mpg -vcodec copy -an cobra.m2v
+
+Dragon's Lair
+ffmpeg -i lair.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 lair.mpg
+ffmpeg -i lair.mpg -vcodec copy -an lair.m2v
+
+Esh's Aurunmilla
+ffmpeg -i esh.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 esh.mpg
+ffmpeg -i esh.mpg -vcodec copy -an esh.m2v
+
+Galaxy Ranger
+ffmpeg -i galaxy.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 galaxy.mpg
+ffmpeg -i galaxy.mpg -vcodec copy -an galaxy.m2v
+
+GP World
+ffmpeg -i gpworld.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 gpworld.mpg
+ffmpeg -i gpworld.mpg -vcodec copy -an gpworld.m2v
+
+Interstellar
+ffmpeg -i interstellar.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 interstellar.mpg
+ffmpeg -i interstellar.mpg -vcodec copy -an interstellar.m2v
+
+Dragon's Lair 2
+ffmpeg -i lair2.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 lair2.mpg
+ffmpeg -i lair2.mpg -vcodec copy -an lair2.m2v
+
+M.A.C.H. 3
+ffmpeg -i mach3.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 mach3.mpg
+ffmpeg -i mach3.mpg -vcodec copy -an mach3.m2v
+
+Road Blaster
+ffmpeg -i roadblaster.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 roadblaster.mpg
+ffmpeg -i roadblaster.mpg -vcodec copy -an roadblaster.m2v
+
+Super Don Quix-ote
+ffmpeg -i superd.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 superd.mpg
+ffmpeg -i superd.mpg -vcodec copy -an superd.m2v
+
+Thayer's Quest
+ffmpeg -i tq.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 tq.mpg
+ffmpeg -i tq.mpg -vcodec copy -an tq.m2v
+
+Us vs Them
+ffmpeg -i uvt.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 uvt.mpg
+ffmpeg -i uvt.mpg -vcodec copy -an uvt.m2v
+
+2015.05.08

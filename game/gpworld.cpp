@@ -75,8 +75,11 @@ gpworld::gpworld()
 	cpu.mem = m_cpumem;
 	add_cpu(&cpu);	// add a z80
 	
-	m_video_row_offset = 8;	// shift video up by 16 pixels (8 rows)
-
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// shift video up by 16 pixels (8 rows)
+#else
+	m_video_row_offset = -8;	// shift video up by 16 pixels (8 rows)
+#endif
 	m_transparent_color = 0;
 	ldp_output_latch = 0xff;
 	nmie = false;

@@ -8,5 +8,5 @@ StartupNotify=true
 Icon=daphne
 Categories=emulators;
 MimeType=application/zip;
-#X-OD-NeedsDownscaling=true
-#X-OD-Manual=gcw0readme.txt
+X-OD-NeedsDownscaling=true
+X-OD-Manual=gcw0manual.txt

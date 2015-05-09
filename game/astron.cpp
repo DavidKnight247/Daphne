@@ -49,6 +49,8 @@
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
 
+static int invertvertical;
+
 astron::astron()
 {
 	struct cpudef cpu;
@@ -63,8 +65,11 @@ astron::astron()
 	m_disc_fps = 29.97; 
 	m_game_type = GAME_ASTRON;
 
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// shift video up by 32 pixels (16 rows)
+#else
 	m_video_row_offset = -16;	// shift video up by 32 pixels (16 rows)
-
+#endif
 	m_video_overlay_width = ASTRON_OVERLAY_W;
 	m_video_overlay_height = ASTRON_OVERLAY_H;
 	m_palette_color_count = ASTRON_COLOR_COUNT;
@@ -326,8 +331,11 @@ cobraab::cobraab()
 	m_shortgamename = "cobraab";
 	banks[3] = 0xfb;
 
+#ifdef GCWZERO
+	m_video_row_offset = 0;	// shift video up by 16 pixels (8 rows)
+#else
 	m_video_row_offset = -8;	// shift video up by 16 pixels (8 rows)
-
+#endif
 	const static struct rom_def cobraab_roms[] =
 	{
 
@@ -928,100 +936,184 @@ void astron::video_repaint()
 // this gets called when the user presses a key or moves the joystick
 void astron::input_enable(Uint8 move)
 {
+#ifdef GCWZERO
+	if(invertvertical)
+	{
 	switch (move)
 	{
-#ifdef GCWZERO
-	case SWITCH_UP:
-		banks[1] &= ~0x04; 
-		break;
-	case SWITCH_DOWN:
-		banks[1] &= ~0x08; 
-		break;
-#else
-	case SWITCH_UP:
-		banks[1] &= ~0x08; 
-		break;
-	case SWITCH_DOWN:
-		banks[1] &= ~0x04; 
-		break;
-#endif
-	case SWITCH_LEFT:
-		banks[1] &= ~0x02;
-		break;
-	case SWITCH_RIGHT:
-		banks[1] &= ~0x01;
-		break;
-	case SWITCH_START1: // '1' on keyboard
-		banks[0] &= ~0x10; 
-		break;
-	case SWITCH_START2: // '2' on keyboard
-		banks[0] &= ~0x40;
-		break;
-	case SWITCH_BUTTON1: // space on keyboard
-		banks[1] &= ~0x10;
-		break;
-	case SWITCH_COIN1: 
-		banks[0] &= ~0x01;
-		break;
-	case SWITCH_COIN2: 
-		banks[0] &= ~0x02;
-		break;
-	case SWITCH_SERVICE: 
-		banks[0] &= ~0x08;
-		break;
-	case SWITCH_TEST: 
-		banks[0] &= ~0x04;
-		break;
+		case SWITCH_UP:
+			banks[1] &= ~0x04; 
+			break;
+		case SWITCH_DOWN:
+			banks[1] &= ~0x08; 
+			break;
+		case SWITCH_LEFT:
+			banks[1] &= ~0x02;
+			break;
+		case SWITCH_RIGHT:
+			banks[1] &= ~0x01;
+			break;
+		case SWITCH_START1: // '1' on keyboard
+			banks[0] &= ~0x10; 
+			break;
+		case SWITCH_START2: // '2' on keyboard
+			banks[0] &= ~0x40;
+			break;
+		case SWITCH_BUTTON1: // space on keyboard
+			banks[1] &= ~0x10;
+			break;
+		case SWITCH_TILT: 
+			invertvertical = !invertvertical;
+			break;
+		case SWITCH_COIN1: 
+			banks[0] &= ~0x01;
+			break;
+		case SWITCH_COIN2: 
+			banks[0] &= ~0x02;
+			break;
+		case SWITCH_SERVICE: 
+			banks[0] &= ~0x08;
+			break;
+		case SWITCH_TEST: 
+			banks[0] &= ~0x04;
+			break;
 	}
-}  
+	}
+	else
+#endif
+	{
+	switch (move)
+	{
+		case SWITCH_UP:
+			banks[1] &= ~0x08; 
+			break;
+		case SWITCH_DOWN:
+			banks[1] &= ~0x04; 
+			break;
+		case SWITCH_LEFT:
+			banks[1] &= ~0x02;
+			break;
+		case SWITCH_RIGHT:
+			banks[1] &= ~0x01;
+			break;
+		case SWITCH_START1: // '1' on keyboard
+			banks[0] &= ~0x10; 
+			break;
+		case SWITCH_START2: // '2' on keyboard
+			banks[0] &= ~0x40;
+			break;
+		case SWITCH_BUTTON1: // space on keyboard
+			banks[1] &= ~0x10;
+			break;
+#ifdef GCWZERO
+		case SWITCH_TILT: 
+			invertvertical = !invertvertical;
+			break;
+#endif
+		case SWITCH_COIN1: 
+			banks[0] &= ~0x01;
+			break;
+		case SWITCH_COIN2: 
+			banks[0] &= ~0x02;
+			break;
+		case SWITCH_SERVICE: 
+			banks[0] &= ~0x08;
+			break;
+		case SWITCH_TEST: 
+			banks[0] &= ~0x04;
+			break;
+	}
+	}
+}
 
 // this gets called when the user releases a key or moves the joystick back to center position
 void astron::input_disable(Uint8 move)
 {
+#ifdef GCWZERO
+	if(invertvertical)
+	{
 	switch (move)
 	{
-#ifdef GCWZERO
-	case SWITCH_UP:
-		banks[1] |= 0x04; 
-		break;
-	case SWITCH_DOWN:
-		banks[1] |= 0x08; 
-		break;
-#else
-	case SWITCH_UP:
-		banks[1] |= 0x08; 
-		break;
-	case SWITCH_DOWN:
-		banks[1] |= 0x04; 
-		break;
+		case SWITCH_UP:
+			banks[1] |= 0x04; 
+			break;
+		case SWITCH_DOWN:
+			banks[1] |= 0x08; 
+			break;
+		case SWITCH_LEFT:
+			banks[1] |= 0x02;
+			break;
+		case SWITCH_RIGHT:
+			banks[1] |= 0x01;
+			break;
+		case SWITCH_START1: // '1' on keyboard
+			banks[0] |= 0x10; 
+			break;
+		case SWITCH_START2: // '2' on keyboard
+			banks[0] |= 0x40;
+			break;
+		case SWITCH_BUTTON1: // space on keyboard
+			banks[1] |= 0x10;
+			break;
+		case SWITCH_TILT: 
+			break;
+		case SWITCH_COIN1: 
+			banks[0] |= 0x01;
+			break;
+		case SWITCH_COIN2: 
+			banks[0] |= 0x02;
+			break;
+		case SWITCH_SERVICE: 
+			banks[0] |= 0x08;
+			break;
+		case SWITCH_TEST: 
+			banks[0] |= 0x04;
+			break;
+	}
+	}
+	else
 #endif
-	case SWITCH_LEFT:
-		banks[1] |= 0x02;
-		break;
-	case SWITCH_RIGHT:
-		banks[1] |= 0x01;
-		break;
-	case SWITCH_START1: // '1' on keyboard
-		banks[0] |= 0x10; 
-		break;
-	case SWITCH_START2: // '2' on keyboard
-		banks[0] |= 0x40;
-		break;
-	case SWITCH_BUTTON1: // space on keyboard
-		banks[1] |= 0x10;
-		break;
-	case SWITCH_COIN1: 
-		banks[0] |= 0x01;
-		break;
-	case SWITCH_COIN2: 
-		banks[0] |= 0x02;
-		break;
-	case SWITCH_SERVICE: 
-		banks[0] |= 0x08;
-		break;
-	case SWITCH_TEST: 
-		banks[0] |= 0x04;
-		break;
+	{
+	switch (move)
+	{
+		case SWITCH_UP:
+			banks[1] |= 0x08; 
+			break;
+		case SWITCH_DOWN:
+			banks[1] |= 0x04; 
+			break;
+		case SWITCH_LEFT:
+			banks[1] |= 0x02;
+			break;
+		case SWITCH_RIGHT:
+			banks[1] |= 0x01;
+			break;
+		case SWITCH_START1: // '1' on keyboard
+			banks[0] |= 0x10; 
+			break;
+		case SWITCH_START2: // '2' on keyboard
+			banks[0] |= 0x40;
+			break;
+		case SWITCH_BUTTON1: // space on keyboard
+			banks[1] |= 0x10;
+			break;
+#ifdef GCWZERO
+		case SWITCH_TILT: 
+			break;
+#endif
+		case SWITCH_COIN1: 
+			banks[0] |= 0x01;
+			break;
+		case SWITCH_COIN2: 
+			banks[0] |= 0x02;
+			break;
+		case SWITCH_SERVICE: 
+			banks[0] |= 0x08;
+			break;
+		case SWITCH_TEST: 
+			banks[0] |= 0x04;
+			break;
+	}
 	}
 }
 

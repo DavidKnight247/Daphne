@@ -29,7 +29,11 @@
 #include "game.h"
 
 #define INTERSTELLAR_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define INTERSTELLAR_OVERLAY_H 240	// height of overlay
+#else
 #define INTERSTELLAR_OVERLAY_H 256	// height of overlay
+#endif
 
 #define INTERSTELLAR_COLOR_COUNT 256
 

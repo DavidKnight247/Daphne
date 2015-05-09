@@ -29,8 +29,11 @@
 #include "game.h"
 
 #define ASTRON_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define ASTRON_OVERLAY_H 240 // height of overlay
+#else
 #define ASTRON_OVERLAY_H 256 // height of overlay
-
+#endif
 #define ASTRON_COLOR_COUNT 256
 
 #define BASE_VID_MEM_ADDRESS 0xf000

@@ -26,7 +26,11 @@
 #include "game.h"
 
 #define ESH_OVERLAY_W 256	// width of overlay
+#ifdef GCWZERO
+#define ESH_OVERLAY_H 240	// height of overlay
+#else
 #define ESH_OVERLAY_H 256	// height of overlay
+#endif
 
 // # of colors in the esh's color palette
 #define ESH_COLOR_COUNT 256

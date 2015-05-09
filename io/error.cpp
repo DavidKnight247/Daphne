@@ -41,7 +41,13 @@
 
 #ifndef GP2X
 //const char *instr = "Please read the daphne_log.txt file for more information";
+
+#ifdef GCWZERO
+const char *instr = "Read $HOME/.daphne/daphne_log.txt for help. Press Y.";
+#else
 const char *instr = "Read daphne_log.txt for help";
+#endif
+
 #else
 const char *instr = "Read daphne_log.txt for help";
 #endif
@@ -65,6 +71,13 @@ void printerror(const char *s)
 
 		vid_blank();	// needed for opengl
 
+#ifdef GCWZERO
+		draw_othergfx(B_DAPHNE_SAVEME, 160, 120);
+
+		// make sure text is centered
+		SDLDrawText(s, srfScreen, FONT_SMALL, 0, 0);
+		SDLDrawText(instr, srfScreen, FONT_SMALL, 0, 26);
+#else
 		// only draw this graphic if our width is at least 640 (it can be smaller on handheld)
 		if (srfScreen->w >= 640)
 		{
@@ -75,7 +88,7 @@ void printerror(const char *s)
 		// make sure text is centered
 		SDLDrawText(s, srfScreen, FONT_SMALL, ((srfScreen->w >> 1) + uXOffset -((strlen(s) >> 1)*6)), (srfScreen->h >> 1)-13);
 		SDLDrawText(instr, srfScreen, FONT_SMALL, ((srfScreen->w >> 1) + uXOffset -((strlen(instr) >> 1)*6)), (srfScreen->h >> 1));
-
+#endif
 		vid_blit(srfScreen, 0, 0);
 		vid_flip();
 
@@ -117,8 +130,13 @@ void printnowookin(const char *s)
 
 		vid_blank();
 		// don't draw 'no wookin' graphic if display is too small (can happen on handheld)
+#ifdef GCWZERO
+		draw_othergfx(B_GAMENOWOOK, 0, 180);
+		SDLDrawText(s, srfScreen, FONT_SMALL, 0, 39);
+#else
 		if (srfScreen->w >= 640) draw_othergfx(B_GAMENOWOOK, 0, 180);
 		SDLDrawText(s, srfScreen, FONT_SMALL, ((srfScreen->w >> 1) -((strlen(s) >> 1)*6)), (srfScreen->h >> 1));
+#endif
 		vid_blit(srfScreen, 0, 0);
 		vid_flip();
 		con_getkey();	// wait for keypress
@@ -135,10 +153,13 @@ void printnotice(const char *s)
 	{
 		char ch = 0;
 		SDL_Surface *srfScreen = get_screen_blitter();
-
 		SDL_FillRect(srfScreen, NULL, 0);	// draw black background first
+#ifdef GCWZERO
+		vid_blank();	// needed by opengl
+		SDLDrawText(s, srfScreen, FONT_SMALL, 0, 52);
+#else
 		SDLDrawText(s, srfScreen, FONT_SMALL, ((srfScreen->w >> 1)-((strlen(s) >> 1)*6)), (srfScreen->h >> 1));
-
+#endif
 		vid_blank();	// needed by opengl
 		vid_blit(srfScreen, 0, 0);
 		vid_flip();

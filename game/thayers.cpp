@@ -71,7 +71,9 @@ thayers::thayers()
 	ldv1000_enable_instant_seeking();
     m_use_speech = true;   // Even though not truly emulated, speech synthesis is the default.
     m_show_speech_subtitle = false;  // Flag to toggle on/off subtitled speech text.
+#ifndef GCWZERO
     m_game_issues = "Use PageUp, PageDown to change speech volume. F9 toggles speech subtitle on/off";
+#endif
 
 	m_game_uses_video_overlay = false;
     m_use_overlay_scoreboard = false;   // overlay scoreboard option must be enabled from cmd line

@@ -29,7 +29,11 @@
 #include "game.h"
 
 #define LGP_OVERLAY_W 256 // width of overlay
+#ifdef GCWZERO
+#define LGP_OVERLAY_H 240 // height of overlay
+#else
 #define LGP_OVERLAY_H 256 // height of overlay
+#endif
 
 #define LGP_COLOR_COUNT 256
 

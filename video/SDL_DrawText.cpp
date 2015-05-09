@@ -84,10 +84,10 @@ void SDLDrawText(const char *string, SDL_Surface *surface, int FontType, int x, 
 	/* see how many characters can fit on the screen */
 	if(x>surface->w || y>surface->h) return;
 
-	if(strlen(string) < (unsigned int) (surface->w-x)/CurrentFont->CharWidth)
+//gcwtesting	if(strlen(string) < (unsigned int) (surface->w-x)/CurrentFont->CharWidth)
 		characters = strlen(string);
-	else
-		characters = (surface->w-x)/CurrentFont->CharWidth;
+//	else
+//gcw		characters = (surface->w-x)/CurrentFont->CharWidth;
 
 	DestRect.x = x;
 	DestRect.y = y;
