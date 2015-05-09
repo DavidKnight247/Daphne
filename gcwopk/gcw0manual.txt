@@ -55,11 +55,11 @@ Once unpacked, place the .m2v file you want to convert into the "bin" directory.
 Then run "ff-prompt.bat". A command-line will pop-up.
 
 Now type the following depending on which game you are playing:
-(note, not all of these have been tested. The resolution should be half it's unconverted value)
 
 Space Ace
 ffmpeg -i ace.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 ace.mpg
 ffmpeg -i ace.mpg -vcodec copy -an ace.m2v
+(currently untested)
 
 Astron Belt
 ffmpeg -i astron.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 astron.mpg
@@ -76,6 +76,7 @@ ffmpeg -i bega.mpg -vcodec copy -an bega.m2v
 Star Blazer
 ffmpeg -i blazer.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 blazer.mpg
 ffmpeg -i blazer.mpg -vcodec copy -an blazer.m2v
+(Currently untested)
 
 Cliff Hanger
 ffmpeg -i cliff.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 cliff.mpg
@@ -96,6 +97,8 @@ ffmpeg -i esh.mpg -vcodec copy -an esh.m2v
 Galaxy Ranger
 ffmpeg -i galaxy.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 galaxy.mpg
 ffmpeg -i galaxy.mpg -vcodec copy -an galaxy.m2v
+(Galaxy ranger also requires the astron bios files. If you get ROM errors then unzip the astron rom and place all files into "galaxy.zip".
+The files then need to be renamed to galaxy.zip, galaxy.txt, galaxyr.ogg and galaxyr.m2v)
 
 GP World
 ffmpeg -i gpworld.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 gpworld.mpg
@@ -108,6 +111,9 @@ ffmpeg -i interstellar.mpg -vcodec copy -an interstellar.m2v
 Dragon's Lair 2
 ffmpeg -i lair2.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 320x240 lair2.mpg
 ffmpeg -i lair2.mpg -vcodec copy -an lair2.m2v
+(There are multiple versions of this romset. If you get crash errors then try renaming the .zip and .txt files to one of the following: 
+lair2.zip, lair2_319_euro.zip, lair2_319_span.zip, lair2_318.zip, lair2_316_euro.zip, lair2_315.zip,
+lair2_314.zip, lair2_300.zip, lair2_211.zip)
 
 M.A.C.H. 3
 ffmpeg -i mach3.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 mach3.mpg
