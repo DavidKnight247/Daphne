@@ -116,6 +116,7 @@ ffmpeg -i mach3.mpg -vcodec copy -an mach3.m2v
 Road Blaster
 ffmpeg -i roadblaster.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 roadblaster.mpg
 ffmpeg -i roadblaster.mpg -vcodec copy -an roadblaster.m2v
+(in my version I also had to rename the files to rb.ogg, rb.m2v, roadblaster.txt and roadblaster.zip)
 
 Super Don Quix-ote
 ffmpeg -i superd.m2v -b:v 2000k -vcodec mpeg2video -filter:v yadif -s 256x240 superd.mpg
