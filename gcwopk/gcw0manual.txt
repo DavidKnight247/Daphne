@@ -10,6 +10,10 @@ GCW0 port sourcecode: www.github.com/DavidKnight247/Daphne
 Daphne is an emulator which plays classic arcade laserdisc games from the 1980's. Probably the most famous of which was Dragons Lair. 
 Instructions for how to get these titles to run are below.
 
+IMPORTANT
+Daphne contains copyright sound assets which have been removed from this version. If you wish to add these then they need to be placed into the $HOME/.daphne/sound folder. 
+Check the daphne website to get the sound folder from the PC installation and copy the files to your gcw0. The daphne log file ($HOME/.daphne/daphne_log.txt) will note the name and location of these files for you if you get stuck.
+
 Controls
 --------
 D-Pad: Directions

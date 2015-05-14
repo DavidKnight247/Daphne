@@ -120,7 +120,7 @@ gtg::gtg()
 	m_shortgamename = "gtg";
 	m_game_type = GAME_GTG;
 #ifdef GCWZERO
-	m_game_issues = "When we fixed Cliff, we broke this game. Press Y.";
+//crashes if no sounds folder.	m_game_issues = "When we fixed Cliff, we broke this game. Press Y.";
 #else
 	m_game_issues = "When we fixed Cliff, we broke this game, sorry! hehe";
 #endif	

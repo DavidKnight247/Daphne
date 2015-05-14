@@ -72,7 +72,7 @@ void printerror(const char *s)
 		vid_blank();	// needed for opengl
 
 #ifdef GCWZERO
-		draw_othergfx(B_DAPHNE_SAVEME, 160, 120);
+		draw_othergfx(B_DAPHNE_SAVEME, 0, 240-77);
 
 		// make sure text is centered
 		SDLDrawText(s, srfScreen, FONT_SMALL, 0, 0);

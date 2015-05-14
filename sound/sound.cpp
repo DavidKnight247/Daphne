@@ -56,6 +56,10 @@ bool g_sound_enabled = true;	// whether sound is enabled
 
 bool g_bSoundMuted = false;	// whether sound is muted
 
+#ifdef GCWZERO
+static bool gcw_sound = true;
+#endif
+
 struct sounddef *g_soundchip_head = NULL;	// pointer to the first sound chip in our linked list of chips's
 unsigned int g_uSoundChipNextID = 0;	// the idea that the next soundchip to get added will get (also usually indicates how many sound chips have been added, but not if a soundchip gets deleted)
 
@@ -252,12 +256,19 @@ bool sound_play(Uint32 whichone)
 	bool result = false;
 	
 	// only play a sound if sound has been initialized (and if whichone points to a valid wav)
+#ifdef GCWZERO
+	if (is_sound_enabled() && (whichone < MAX_NUM_SOUNDS) && gcw_sound)
+	{
+		samples_play_sample(g_samples[whichone].pu8Buf, g_samples[whichone].uLength, g_samples[whichone].uChannels);
+		result = true;
+	}// else	result = true; //or it will crash :(
+#else
 	if (is_sound_enabled() && (whichone < MAX_NUM_SOUNDS))
 	{
 		samples_play_sample(g_samples[whichone].pu8Buf, g_samples[whichone].uLength, g_samples[whichone].uChannels);
 		result = true;
 	}
-	
+#endif	
 	return(result);
 	
 }
@@ -267,12 +278,19 @@ bool sound_play_saveme()
 {
 	bool result = false;
 	
+#ifdef GCWZERO
+	if (gcw_sound && is_sound_enabled())
+	{
+		samples_play_sample(g_sample_saveme.pu8Buf, g_sample_saveme.uLength);
+		result = true;
+	}// else result = true; //or it crashes :(
+#else
 	if (is_sound_enabled())
 	{
 		samples_play_sample(g_sample_saveme.pu8Buf, g_sample_saveme.uLength);
 		result = true;
 	}
-	
+#endif	
 	return result;
 }
 
@@ -286,9 +304,17 @@ int load_waves()
 	string filename = "";
 	SDL_AudioSpec spec;
 
+#ifdef GCWZERO
+        const char *homeenv = getenv("HOME");
+#endif
 	for (; (i < g_game->get_num_sounds()) && result; i++)
 	{
+#ifdef GCWZERO
+                filename = homeenv;
+                filename += "/.daphne/sound/";
+#else
 		filename = "sound/";
+#endif
 		filename += g_game->get_sound_name(i);
 
 		// initialize so that shutting down succeeds
@@ -320,15 +346,30 @@ int load_waves()
 		{
 			outstr("ERROR: Could not open sample file ");
 			printline(filename.c_str());
+#ifdef GCWZERO
+			gcw_sound = false;
+#else
 			result = 0;
+#endif
 		}
 	}
 	
 	// load "saveme" sound in
+#ifdef GCWZERO
+        string filename2 = homeenv;
+        filename2 += "/.daphne/sound/saveme.wav";
+	const char * filename3 = filename2.c_str();
+	if (!SDL_LoadWAV(filename3, &spec, &g_sample_saveme.pu8Buf, &g_sample_saveme.uLength))
+#else
 	if (!SDL_LoadWAV("sound/saveme.wav", &spec, &g_sample_saveme.pu8Buf, &g_sample_saveme.uLength))
+#endif
 	{
 		printline("Loading 'saveme.wav' failed...");
-		result = 0;
+#ifdef GCWZERO	
+		gcw_sound = false;
+#else
+        	result = 0;
+#endif
 	}
 
 	// if something went wrong, eject ...

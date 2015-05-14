@@ -1925,9 +1925,9 @@ int prepare_frame_callback_with_overlay(struct yuv_buf *src)
 						else
 						{
 						//nope, so best we can do is alternate the colours and hope for the best
-							*((Uint32 *) (g_line_buf2 + col)) = 
-								 palette2->y | (palette2->u << 8) |
-								 (palette2->y <<16) | (palette2->v << 24);
+//							*((Uint32 *) (g_line_buf2 + col)) = 
+//								 palette2->y | (palette2->u << 8) |
+//								 (palette2->y <<16) | (palette2->v << 24);
 
 // In theory this is better. In practice it gives you a headache :(
 							if(!eop)

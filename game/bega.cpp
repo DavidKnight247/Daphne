@@ -194,7 +194,7 @@ cobra::cobra()  //dedicated version of Cobra Command
 {
    m_shortgamename = "cobra";
 #ifdef GCWZERO
-   m_game_issues = "Graphics problems. Press Y";
+//crashes if no sounds are present   m_game_issues = "Graphics problems. Press Y";
 #else
    m_game_issues = "Game does not work properly (graphics problems)";
 #endif

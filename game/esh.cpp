@@ -93,7 +93,7 @@ esh::esh() :
 	m_sound_name[S_ESH_BEEP] = "esh_beep.wav";
 	
 #ifdef GCWZERO
-	m_game_issues = "Game completable, video/sound problems. Press Y.";
+//	m_game_issues = "Game completable, video/sound problems. Press Y.";
 #else
 	m_game_issues = "Game can be completed, but driver is very immature.  Various video/sound problems.";
 #endif

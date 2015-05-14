@@ -56,8 +56,12 @@ void homedir::set_homedir(const string &s)
 	// create writable directories if they don't exist
 	make_dir(m_homedir);
 	make_dir(m_homedir + "/ram");
+#ifdef GCWZERO
+	make_dir(m_homedir + "/sound");
+#else
 	make_dir(m_homedir + "/roms");
 	make_dir(m_homedir + "/framefile");
+#endif
 }
 
 string homedir::get_romfile(const string &s)
